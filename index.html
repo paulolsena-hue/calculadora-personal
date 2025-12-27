@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Custos PT - Offline</title>
+    <!-- Configurações para iOS (modo tela cheia) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Custos PT">
+    
+    <!-- CSS Incorporado: Garante que o estilo funcione offline. -->
+    <style>
+        /*
+        Atenção: Este é um trecho de CSS gerado dinamicamente para garantir a funcionalidade offline.
+        Ele inclui classes baseadas em Tailwind e estilos essenciais.
+        */
+        :root {
+            --font-inter: 'Inter', sans-serif;
+            --color-indigo-800: #3730a3;
+            --color-indigo-200: #e0e7ff;
+            --color-indigo-600: #4f46e5;
+            --color-indigo-100: #eef2ff;
+        }
+
+        html { font-family: var(--font-inter); }
+        body { min-height: 100vh; }
+        .container { max-width: 600px; }
+        
+        /* Estilos de utilidade essenciais para o layout e cores */
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        .p-4 { padding: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .pb-2 { padding-bottom: 0.5rem; }
+        .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+        .font-extrabold { font-weight: 800; }
+        .text-indigo-800 { color: var(--color-indigo-800); }
+        .border-b-4 { border-bottom-width: 4px; }
+        .border-indigo-200 { border-color: var(--color-indigo-200); }
+
+        .bg-white { background-color: white; }
+        .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        .rounded-2xl { border-radius: 1rem; }
+        .border { border-width: 1px; }
+        .border-indigo-100 { border-color: var(--color-indigo-100); }
+        .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+        .font-semibold { font-weight: 600; }
+        .text-indigo-700 { color: #4338ca; }
+        .mb-4 { margin-bottom: 1rem; }
+        .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .grid { display: grid; }
+        .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .gap-3 { gap: 0.75rem; }
+        .text-center { text-align: center; }
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        .text-gray-500 { color: #6b7280; }
+        .mt-4 { margin-top: 1rem; }
+        .font-bold { font-weight: 700; }
+
+        .bg-indigo-600 { background-color: var(--color-indigo-600); }
+        .text-white { color: white; }
+        .p-4 { padding: 1rem; }
+        .rounded-xl { border-radius: 0.75rem; }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .flex { display: flex; }
+        .justify-between { justify-content: space-between; }
+        .items-center { align-items: center; }
+        .flex-col { flex-direction: column; }
+        .mt-1 { margin-top: 0.25rem; }
+        .opacity-80 { opacity: 0.8; }
+        
+        .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.5rem; }
+        .overflow-x-auto { overflow-x: auto; }
+        .min-w-full { min-width: 100%; }
+        .border-gray-200 { border-color: #e5e7eb; }
+        .bg-indigo-50 { background-color: #f9fafb; }
+        .border-b { border-bottom-width: 1px; }
+        .border-indigo-200 { border-color: #e0e7ff; }
+        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+        .text-left { text-align: left; }
+        .text-xs { font-size: 0.75rem; line-height: 1rem; }
+        .uppercase { text-transform: uppercase; }
+        .tracking-wider { letter-spacing: 0.05em; }
+        .sticky { position: sticky; }
+        .left-0 { left: 0; }
+        .z-10 { z-index: 10; }
+        .text-gray-800 { color: #1f2937; }
+        .whitespace-nowrap { white-space: nowrap; }
+        .hover\:bg-gray-50:hover { background-color: #f9fafb; }
+        .bg-indigo-100\/70 { background-color: rgba(238, 242, 255, 0.7); }
+        .border-indigo-300 { border-color: #a5b4fc; }
+        .text-indigo-600 { color: var(--color-indigo-600); }
+        .bg-gray-200\/50 { background-color: rgba(229, 231, 235, 0.5); }
+        .text-gray-500 { color: #6b7280; }
+        .text-green-600 { color: #059669; }
+        .text-right { text-align: right; }
+        .font-normal { font-weight: 400; }
+
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .px-1 { padding-left: 0.25rem; padding-right: 0.25rem; }
+        .w-full { width: 100%; }
+        .appearance-none { appearance: none; }
+        .border-2 { border-width: 2px; }
+        .transition { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+        .duration-150 { transition-duration: 150ms; }
+        .shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .cursor-pointer { cursor: pointer; }
+        .focus\:ring-2:focus { --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color); --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color); box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000); }
+        .focus\:ring-offset-2:focus { --tw-ring-offset-width: 2px; }
+        .focus\:ring-indigo-500:focus { --tw-ring-color: #6366f1; }
+
+        /* Cores de Sessão */
+        .bg-red-500 { background-color: #ef4444; }
+        .hover\:bg-red-600:hover { background-color: #dc2626; }
+        .bg-yellow-500 { background-color: #f59e0b; }
+        .hover\:bg-yellow-600:hover { background-color: #d97706; }
+        .bg-green-500 { background-color: #10b981; }
+        .hover\:bg-green-600:hover { background-color: #059669; }
+        .bg-blue-500 { background-color: #3b82f6; }
+        .hover\:bg-blue-600:hover { background-color: #2563eb; }
+        .bg-gray-400 { background-color: #9ca3af; }
+        .opacity-50 { opacity: 0.5; }
+        .cursor-not-allowed { cursor: not-allowed; }
+
+        /* Mensagem de Status */
+        .fixed { position: fixed; }
+        .bottom-4 { bottom: 1rem; }
+        .left-1\/2 { left: 50%; }
+        .transform { transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)); }
+        .-\translate-x-1\/2 { --tw-translate-x: -50%; }
+        .bg-green-500 { background-color: #10b981; }
+        .pointer-events-none { pointer-events: none; }
+        
+        /* Estilo do seletor (necessário para cores e aparência) */
+        .session-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 1.5em;
+            color: white !important; /* FORÇA A COR BRANCA */
+        }
+        
+        /* Ajuste para centralizar o texto no seletor e garantir que ele não quebre */
+        .session-select option {
+            text-align: center;
+        }
+
+        /* Classes de Card de Preço */
+        .border-yellow-500 { border-color: #f59e0b; }
+        .bg-yellow-500\/10 { background-color: rgba(245, 158, 11, 0.1); }
+        .text-yellow-700 { color: #b45309; }
+        .border-green-500 { border-color: #10b981; }
+        .bg-green-500\/10 { background-color: rgba(16, 185, 129, 0.1); }
+        .text-green-700 { color: #047857; }
+        .border-blue-500 { border-color: #3b82f6; }
+        .bg-blue-500\/10 { background-color: rgba(59, 130, 246, 0.1); }
+        .text-blue-700 { color: #1d4ed8; }
+
+        /* Estilo para garantir a visibilidade do mês fixo em rolagem horizontal */
+        #monthly-table td:first-child { 
+            position: sticky; 
+            left: 0; 
+            /* A cor de fundo precisa ser consistente com o estado da linha */
+        }
+        
+    </style>
+</head>
+<body class="bg-gray-50 p-4">
+
+    <div class="container mx-auto">
+        <!-- CABEÇALHO -->
+        <h1 class="text-3xl font-extrabold text-indigo-800 mb-6 border-b-4 border-indigo-200 pb-2">
+            💪 Personal Trainer Heleninha | Pagamento Total (13 Meses) 💰
+        </h1>
+        
+        <!-- Regras de Preço Fixo (Simplificado) -->
+        <div class="bg-white shadow-xl rounded-2xl p-4 mb-8 border border-indigo-100">
+            <h2 class="text-xl font-semibold text-indigo-700 mb-4">Regras de Preço Fixo da Sessão</h2>
+            
+            <div class="grid grid-cols-3 gap-3 text-center" id="price-cards-container">
+                <!-- Cards de Preço fixos serão gerados aqui pelo JS -->
+            </div>
+            
+            <p class="text-sm text-gray-500 mt-4 text-center">O custo total mensal é a soma dos preços fixos da sessão.</p>
+        </div>
+
+        <!-- Totalizador -->
+        <div class="bg-indigo-600 text-white p-4 rounded-xl shadow-lg mb-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                <span class="text-lg font-medium">Pagamento Total Estimado (13 Meses):</span>
+                <span class="text-3xl font-bold mt-1 sm:mt-0" id="grand-total-display">R$ 0,00</span>
+            </div>
+            <p class="text-sm opacity-80 mt-1">Este é o valor total a ser pago à personal (sem correção monetária automática).</p>
+        </div>
+
+        <!-- Grade de 13 Meses -->
+        <div class="space-y-6">
+            <h2 class="text-xl font-semibold text-indigo-700">Previsão Mensal (Mês Anterior + 12 Meses)</h2>
+            <p class='text-sm text-gray-500 mb-4'>Selecione o número de participantes em cada sessão:</p>
+            <p class='text-sm text-gray-500 mb-4'><span class='font-bold text-red-500'>0=Faltou</span>, <span class='font-bold text-yellow-600'>1=Solo</span>, <span class='font-bold text-green-600'>2=Duo</span>, <span class='font-bold text-blue-600'>3=Trio</span>.</p>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white shadow-xl rounded-xl border border-gray-200" id="monthly-table">
+                    <thead class="bg-indigo-50 border-b border-indigo-200">
+                        <tr>
+                            <th class="py-3 px-2 text-left text-xs font-semibold text-indigo-700 uppercase tracking-wider sticky left-0 bg-indigo-50 z-10">Mês</th>
+                            <th class="py-3 px-2 text-center text-xs font-semibold text-indigo-700 uppercase tracking-wider">Semanas</th>
+                            <th class="py-3 px-1 text-center text-xs font-semibold text-indigo-700 uppercase tracking-wider w-1/5">S1</th>
+                            <th class="py-3 px-1 text-center text-xs font-semibold text-indigo-700 uppercase tracking-wider w-1/5">S2</th>
+                            <th class="py-3 px-1 text-center text-xs font-semibold text-indigo-700 uppercase tracking-wider w-1/5">S3</th>
+                            <th class="py-3 px-1 text-center text-xs font-semibold text-indigo-700 uppercase tracking-wider w-1/5">S4</th>
+                            <th class="py-3 px-1 text-center text-xs font-semibold text-indigo-700 uppercase tracking-wider w-1/5">S5</th>
+                            <th class="py-3 px-2 text-right text-xs font-semibold text-indigo-700 uppercase tracking-wider">Total (R$)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monthly-body">
+                        <!-- Linhas dos meses serão geradas aqui pelo JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Mensagem de Status (substitui o Toast) -->
+        <div id="status-message" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 p-3 rounded-xl shadow-lg text-white font-medium bg-green-500 opacity-0 transition-opacity duration-300 pointer-events-none">
+            Dados salvos no seu celular!
+        </div>
+
+        <!-- Rodapé -->
+        <div class="mt-8 pt-4 border-t text-xs text-gray-400 text-center">
+          <p>Aplicação Offline (dados salvos no seu dispositivo).</p>
+        </div>
+    </div>
+
+    <script>
+        // --- CONSTANTES E REGRAS ---
+        const LOCAL_STORAGE_KEY = 'pt_cost_planner_offline_data';
+        const MONTH_NAMES_PT = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        
+        // REGRAS DE PREÇO FIXAS DE BASE (Total da Sessão) - Preços originais/referência
+        const FIXED_SESSION_PRICES = {
+            1: 75.00,
+            2: 95.00,
+            3: 115.00,
+        };
+
+        // --- CONFIGURAÇÃO INICIAL (SIMPLIFICADA) ---
+        const INITIAL_CONFIG = {
+            monthlyData: [],
+        };
+        let appData = INITIAL_CONFIG;
+
+        // --- FUNÇÕES DE UTILIDADE ---
+
+        /** Formata um número para moeda BRL. */
+        const formatCurrency = (value) => {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            }).format(value);
+        };
+        
+        /** Converte um número para string BRL (com vírgula). */
+        const toBRLString = (value) => {
+            return value.toFixed(2).replace('.', ',');
+        };
+
+        /** Retorna o formato YYYY-MM para a data atual. */
+        const getCurrentMonthYear = () => {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth() + 1;
+            return `${year}-${String(month).padStart(2, '0')}`;
+        };
+
+        /**
+         * Calcula o número de sessões (semanas) em um mês, assumindo que a aula cai em uma Segunda-feira (dia 1).
+         * @param {number} year 
+         * @param {number} monthIndex (0-11)
+         * @returns {number} O número de Segundas-feiras no mês (4 ou 5).
+         */
+        const getTrainingSessionsInMonth = (year, monthIndex) => {
+            const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+            let count = 0;
+            // Monday is day 1 (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+            const TARGET_DAY = 1; 
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const d = new Date(year, monthIndex, day);
+                if (d.getDay() === TARGET_DAY) {
+                    count++;
+                }
+            }
+            return count;
+        };
+
+
+        /** Gera uma lista de 13 meses: o mês anterior, o atual e os próximos 11. */
+        const getPlanningMonths = () => {
+            const today = new Date();
+            const months = [];
+            // Começa 1 mês atrás
+            const startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+
+            for (let i = 0; i < 13; i++) {
+                const date = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
+                const year = date.getFullYear();
+                const monthIndex = date.getMonth(); // 0-11
+                const label = `${MONTH_NAMES_PT[monthIndex]} ${year}`;
+                const monthYear = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
+                
+                // Calcula o número de sessões possíveis (4 ou 5)
+                const actualWeeks = getTrainingSessionsInMonth(year, monthIndex);
+                
+                months.push({ monthYear, label, weeks: [0, 0, 0, 0, 0], actualWeeks: actualWeeks }); 
+            }
+            return months;
+        };
+
+        /** Exibe uma mensagem de status temporariamente. */
+        const showStatusMessage = (message, isError = false) => {
+            const statusEl = document.getElementById('status-message');
+            statusEl.textContent = message;
+            statusEl.className = `fixed bottom-4 left-1/2 transform -translate-x-1\/2 p-3 rounded-xl shadow-lg text-white font-medium ${isError ? 'bg-red-500' : 'bg-green-500'} opacity-100 transition-opacity duration-300 pointer-events-none`;
+            
+            setTimeout(() => {
+                statusEl.classList.remove('opacity-100');
+                statusEl.classList.add('opacity-0');
+            }, 2000);
+        };
+
+        // --- LÓGICA DE DADOS ---
+
+        /** Carrega os dados do localStorage e inicializa se necessário. */
+        const loadData = () => {
+            const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+            const initialMonths = getPlanningMonths();
+            
+            let loadedMonthlyData = [];
+
+            if (storedData) {
+                try {
+                    const loadedData = JSON.parse(storedData);
+                    loadedMonthlyData = loadedData.monthlyData || [];
+
+                } catch (e) {
+                    console.error("Erro ao carregar dados do localStorage:", e);
+                    showStatusMessage("Erro ao carregar dados. Usando dados padrão.", true);
+                }
+            }
+            
+            // Garante que a estrutura de 13 meses está completa e correta
+            const updatedMonthlyData = initialMonths.map(initialMonth => {
+                const existingMonth = loadedMonthlyData.find(m => m.monthYear === initialMonth.monthYear);
+                
+                // Mescla dados salvos com o cálculo dinâmico de actualWeeks
+                if (existingMonth) {
+                    const weeks = Array(5).fill(0).map((_, i) => existingMonth.weeks?.[i] || 0);
+                    return { ...existingMonth, weeks, actualWeeks: initialMonth.actualWeeks };
+                }
+                return initialMonth;
+            });
+            
+            appData.monthlyData = updatedMonthlyData.sort((a, b) => new Date(a.monthYear) - new Date(b.monthYear));
+        };
+
+        /** Salva os dados no localStorage. */
+        const saveData = () => {
+            try {
+                // Salva apenas os dados mensais
+                const monthlyDataToSave = appData.monthlyData.map(({ monthYear, label, weeks }) => ({ monthYear, label, weeks }));
+                
+                const dataToSave = {
+                    monthlyData: monthlyDataToSave
+                };
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dataToSave));
+                showStatusMessage("Dados salvos no seu celular!");
+                calculateAndRenderTotals();
+            } catch (e) {
+                console.error("Erro ao salvar dados no localStorage:", e);
+                showStatusMessage("Erro ao salvar dados!", true);
+            }
+        };
+
+        // --- LÓGICA DE CÁLCULO ---
+
+        /** Calcula o preço da sessão. (Sempre usa o preço fixo base)*/
+        const getCorrectedPrice = (attendees, monthYear) => {
+            return FIXED_SESSION_PRICES[attendees];
+        };
+
+        /** Calcula o pagamento total de um mês. */
+        const calculateMonthPayment = (monthData) => {
+            let totalPaymentToTrainer = 0;
+            let totalSessions = 0;
+            const monthYear = monthData.monthYear;
+            
+            monthData.weeks.forEach(attendees => {
+                if (attendees in FIXED_SESSION_PRICES) {
+                    const price = getCorrectedPrice(attendees, monthYear);
+                    totalPaymentToTrainer += price;
+                    totalSessions++;
+                }
+            });
+
+            return { totalPayment: totalPaymentToTrainer, totalSessions };
+        };
+
+        /** Calcula e renderiza os totais e as linhas da tabela. */
+        const calculateAndRenderTotals = () => {
+            if (!appData.monthlyData.length) return;
+
+            const monthlyCalculations = appData.monthlyData.map(monthData => calculateMonthPayment(monthData));
+            
+            const grandTotalPayment = monthlyCalculations.reduce((acc, current) => acc + current.totalPayment, 0);
+
+            document.getElementById('grand-total-display').textContent = formatCurrency(grandTotalPayment);
+            
+            renderPriceCards(); // Renderiza os cards de preço fixo
+            renderMonthlyTable(monthlyCalculations);
+        };
+
+        // --- LÓGICA DE RENDERIZAÇÃO ---
+
+        /** Gera os cards de preço fixo (SEM LÓGICA DE CORREÇÃO) */
+        const renderPriceCards = () => {
+            const container = document.getElementById('price-cards-container');
+            container.innerHTML = '';
+            
+            // Agora usa sempre os preços fixos base para o display
+            const priceData = [
+                { attendees: 1, color: 'yellow', sessionTotal: FIXED_SESSION_PRICES[1] },
+                { attendees: 2, color: 'green', sessionTotal: FIXED_SESSION_PRICES[2] },
+                { attendees: 3, color: 'blue', sessionTotal: FIXED_SESSION_PRICES[3] },
+            ];
+
+            priceData.forEach(({ attendees, color, sessionTotal }) => {
+                const custoIndividual = sessionTotal / attendees;
+                
+                const colorClasses = {
+                    yellow: 'border-yellow-500 bg-yellow-500/10 text-yellow-700',
+                    green: 'border-green-500 bg-green-500/10 text-green-700',
+                    blue: 'border-blue-500 bg-blue-500/10 text-blue-700',
+                };
+                
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-xl border-2 ${colorClasses[color]} shadow-md`;
+                card.innerHTML = `
+                    <p class="text-xl font-bold mb-1">${attendees} Aluno(s)</p>
+                    <p class="text-xs font-semibold mt-1">Total da Sessão:</p>
+                    <p class="text-lg font-extrabold">${formatCurrency(sessionTotal)}</p>
+                    <p class="text-xs mt-1 text-gray-500">Custo Individual:</p>
+                    <p class="text-base font-extrabold text-gray-800">${formatCurrency(custoIndividual)}</p>
+                `;
+                container.appendChild(card);
+            });
+        };
+        
+        /** Renderiza o corpo da tabela mensal. */
+        const renderMonthlyTable = (monthlyCalculations) => {
+            const tbody = document.getElementById('monthly-body');
+            tbody.innerHTML = '';
+            const currentMonthYear = getCurrentMonthYear();
+
+            appData.monthlyData.forEach((month, monthIndex) => {
+                const { totalPayment, totalSessions } = monthlyCalculations[monthIndex];
+                
+                let rowClasses = 'border-b hover:bg-gray-50';
+                let statusLabel = '';
+                
+                if (month.monthYear === currentMonthYear) {
+                    rowClasses = 'bg-indigo-100/70 font-medium border-indigo-300';
+                    statusLabel = '(Atual)';
+                } else if (month.monthYear < currentMonthYear) {
+                    rowClasses = 'bg-gray-200/50 italic border-gray-300';
+                    statusLabel = '(Anterior)';
+                } else {
+                    statusLabel = '(Futuro)';
+                }
+
+                const row = document.createElement('tr');
+                row.className = rowClasses;
+
+                // Célula do Mês
+                row.innerHTML = `
+                    <td class="py-3 px-2 text-sm text-gray-800 whitespace-nowrap sticky left-0 z-0 ${month.monthYear === currentMonthYear ? 'bg-indigo-100/70' : month.monthYear < currentMonthYear ? 'bg-gray-200/50' : 'bg-white'}">
+                        ${month.label}
+                        <span class="ml-1 text-xs ${month.monthYear === currentMonthYear ? 'text-indigo-600' : month.monthYear < currentMonthYear ? 'text-gray-500' : 'text-green-600'}">
+                            ${statusLabel}
+                        </span>
+                    </td>
+                `;
+                
+                // Célula de Semanas (Informativa)
+                row.innerHTML += `
+                    <td class="py-3 px-2 text-center text-sm font-semibold text-gray-800">
+                        ${month.actualWeeks || 4}
+                    </td>
+                `;
+
+
+                // Células de Sessão (5 semanas)
+                month.weeks.forEach((attendees, weekIndex) => {
+                    const isS5 = weekIndex === 4;
+                    const isDisabled = isS5 && month.actualWeeks === 4;
+                    
+                    let tdClasses = 'py-2 px-1 text-center';
+                    // Classe de cor do seletor é aplicada dinamicamente
+                    let selectClasses = `session-select w-full appearance-none py-2 text-center rounded-lg border-2 font-bold transition duration-150 shadow-md cursor-pointer text-sm focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`;
+
+                    if (isDisabled) {
+                        tdClasses += ' bg-gray-200'; // Fundo cinza claro para célula desativada
+                        selectClasses += ' opacity-50 cursor-not-allowed'; // Reduz opacidade e muda cursor para select
+                    }
+
+                    const td = document.createElement('td');
+                    td.className = tdClasses;
+                    
+                    const colorClasses = `${attendees === 0 ? 'bg-red-500 hover:bg-red-600' :
+                                           attendees === 1 ? 'bg-yellow-500 hover:bg-yellow-600' :
+                                           attendees === 2 ? 'bg-green-500 hover:bg-green-600' :
+                                           attendees === 3 ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-400'}`;
+                                           
+                    // Opções de seletor simplificadas para mostrar APENAS o número
+                    td.innerHTML = `
+                        <select
+                            data-month-index="${monthIndex}"
+                            data-week-index="${weekIndex}"
+                            class="${selectClasses} ${colorClasses}"
+                            ${isDisabled ? 'disabled' : ''}
+                        >
+                            <option value="0" ${attendees === 0 ? 'selected' : ''}>0</option>
+                            <option value="1" ${attendees === 1 ? 'selected' : ''}>1</option>
+                            <option value="2" ${attendees === 2 ? 'selected' : ''}>2</option>
+                            <option value="3" ${attendees === 3 ? 'selected' : ''}>3</option>
+                        </select>
+                    `;
+                    row.appendChild(td);
+                });
+
+                // Célula do Total do Mês
+                row.innerHTML += `
+                    <td class="py-3 px-2 text-right text-sm font-bold text-gray-900 whitespace-nowrap">
+                        ${formatCurrency(totalPayment)}
+                        <span class="block text-xs font-normal text-gray-500">
+                            (${totalSessions} sessões)
+                        </span>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+            });
+            
+            // Re-adiciona o listener após a renderização
+            document.querySelectorAll('.session-select').forEach(select => {
+                select.addEventListener('change', handleSessionChange);
+            });
+        };
+
+        /** Manipulador de evento para mudança de sessão. */
+        const handleSessionChange = (event) => {
+            const select = event.target;
+            const monthIndex = parseInt(select.dataset.monthIndex);
+            const weekIndex = parseInt(select.dataset.weekIndex);
+            const attendees = parseInt(select.value);
+
+            if (appData.monthlyData[monthIndex] && appData.monthlyData[monthIndex].weeks) {
+                appData.monthlyData[monthIndex].weeks[weekIndex] = attendees;
+                saveData(); // Salva e recalcula
+            }
+        };
+
+        // --- INICIALIZAÇÃO ---
+        window.onload = function() {
+            loadData();
+            calculateAndRenderTotals();
+        };
+
+    </script>
+</body>
+</html>
