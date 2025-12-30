@@ -1,320 +1,366 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Custos PT - Offline</title>
-    <!-- Configurações para iOS (modo tela cheia) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Heleninha Trainer - Gestão</title>
+    <!-- Configurações para iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Custos PT">
+    <meta name="apple-mobile-web-app-title" content="Resumo PT">
     
-    <!-- CSS Incorporado: Garante que o estilo funcione offline. -->
     <style>
+        /* Variáveis de Tema */
         :root {
-            --font-inter: 'Inter', sans-serif;
-            --color-indigo-800: #3730a3;
-            --color-indigo-200: #e0e7ff;
-            --color-indigo-600: #4f46e5;
-            --color-indigo-100: #eef2ff;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #4b5563;
+            --primary: #4f46e5;
+            --primary-hover: #3730a3;
+            --border-color: #e5e7eb;
+            --result-bg: #111827;
+            --result-text: #10b981;
+            --modal-overlay: rgba(0, 0, 0, 0.5);
         }
 
-        html { font-family: var(--font-inter); }
-        body { min-height: 100vh; background-color: #f9fafb; }
-        .container { max-width: 800px; }
+        [data-theme='dark'] {
+            --bg-body: #111827;
+            --bg-card: #1f2937;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --primary: #6366f1;
+            --primary-hover: #818cf8;
+            --border-color: #374151;
+            --result-bg: #000000;
+            --result-text: #34d399;
+            --modal-overlay: rgba(0, 0, 0, 0.7);
+        }
+
+        [data-theme='violet'] {
+            --bg-body: #f5f3ff;
+            --bg-card: #ffffff;
+            --text-main: #4c1d95;
+            --text-muted: #6d28d9;
+            --primary: #7c3aed;
+            --primary-hover: #5b21b6;
+            --border-color: #ddd6fe;
+            --result-bg: #2e1065;
+            --result-text: #a78bfa;
+            --modal-overlay: rgba(76, 29, 149, 0.4);
+        }
+
+        * { box-sizing: border-box; transition: background-color 0.2s, color 0.2s; -webkit-tap-highlight-color: transparent; }
+        html { font-family: 'Inter', -apple-system, sans-serif; }
+        body { background-color: var(--bg-body); margin: 0; padding: 15px; color: var(--text-main); line-height: 1.5; }
+        .container { max-width: 500px; margin: 0 auto; }
+
+        /* Cabeçalho */
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+        h1 { font-size: 1.1rem; margin: 0; font-weight: 800; }
+
+        /* Botões de Ação */
+        .header-actions { display: flex; gap: 6px; }
+        .action-btn { border: 1px solid var(--border-color); background: var(--bg-card); width: 36px; height: 36px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: var(--text-main); }
+
+        /* Cartão de Configuração */
+        .card { background: var(--bg-card); padding: 20px; border-radius: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid var(--border-color); margin-bottom: 20px; }
+        .label { display: block; font-size: 0.7rem; font-weight: 800; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
         
-        .mx-auto { margin-left: auto; margin-right: auto; }
-        .p-4 { padding: 1rem; }
-        .mb-6 { margin-bottom: 1.5rem; }
-        .pb-2 { padding-bottom: 0.5rem; }
-        .text-3xl { font-size: 1.5rem; line-height: 2rem; }
-        @media (min-width: 640px) { .text-3xl { font-size: 1.875rem; } }
-        .font-extrabold { font-weight: 800; }
-        .text-indigo-800 { color: var(--color-indigo-800); }
-        .border-b-4 { border-bottom-width: 4px; }
-        .border-indigo-200 { border-color: var(--color-indigo-200); }
+        select, .input-styled { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 15px; font-size: 1rem; background-color: var(--bg-card); color: var(--text-main); outline: none; }
 
-        .bg-white { background-color: white; }
-        .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
-        .rounded-2xl { border-radius: 1rem; }
-        .border { border-width: 1px; }
-        .border-indigo-100 { border-color: var(--color-indigo-100); }
-        .text-xl { font-size: 1.25rem; font-weight: 600; color: #4338ca; }
-        .mb-4 { margin-bottom: 1rem; }
-        .grid { display: grid; }
-        .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-        .gap-3 { gap: 0.75rem; }
-        .text-center { text-align: center; }
-        .text-sm { font-size: 0.875rem; }
-        .text-gray-500 { color: #6b7280; }
-        .mt-4 { margin-top: 1rem; }
-        .font-bold { font-weight: 700; }
+        /* Stepper de Ano */
+        .year-stepper { display: flex; align-items: center; justify-content: space-between; background: var(--bg-body); border-radius: 12px; padding: 6px; margin-bottom: 18px; border: 1px solid var(--border-color); }
+        .step-btn { background: var(--primary); color: white; border: none; width: 44px; height: 44px; border-radius: 10px; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .year-display { font-size: 1.2rem; font-weight: 800; }
 
-        .bg-indigo-600 { background-color: var(--color-indigo-600); }
-        .text-white { color: white; }
-        .rounded-xl { border-radius: 0.75rem; }
-        .flex { display: flex; }
-        .justify-between { justify-content: space-between; }
-        .items-center { align-items: center; }
-        .flex-col { flex-direction: column; }
+        /* Grade de Sessões */
+        .session-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(65px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .session-box { text-align: center; display: flex; flex-direction: column; align-items: center; }
+        .date-label { font-size: 0.75rem; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-muted); }
         
-        .overflow-x-auto { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .min-w-full { min-width: 100%; }
-        .bg-indigo-50 { background-color: #f3f4f6; }
-        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
-        .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
-        .text-xs { font-size: 0.75rem; }
-        .uppercase { text-transform: uppercase; }
-        .sticky { position: sticky; }
-        .left-0 { left: 0; }
-        .z-10 { z-index: 10; }
-        .whitespace-nowrap { white-space: nowrap; }
-
-        /* Cores de Sessão */
-        .bg-red-500 { background-color: #ef4444; }
-        .bg-yellow-500 { background-color: #f59e0b; }
-        .bg-green-500 { background-color: #10b981; }
-        .bg-blue-500 { background-color: #3b82f6; }
-        .bg-gray-400 { background-color: #9ca3af; }
-        .bg-gray-200 { background-color: #e5e7eb; }
-        .opacity-50 { opacity: 0.5; }
-
+        /* Seletor Centralizado */
         .session-select {
-            -webkit-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.3rem center;
-            background-size: 1.2em;
-            color: white !important;
-            width: 100%;
-            border-radius: 0.5rem;
-            border: 2px solid transparent;
-            padding: 0.5rem 0.2rem;
-            font-weight: bold;
-            text-align: center;
+            -webkit-appearance: none; appearance: none;
+            width: 55px; height: 55px; border-radius: 50%; border: none;
+            color: white; font-weight: 900; font-size: 1.3rem;
+            text-align: center; text-align-last: center; 
+            cursor: pointer; padding: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            display: flex; align-items: center; justify-content: center;
+            outline: none;
         }
 
-        /* Memória de Cálculo */
-        .calculation-memo {
-            background-color: #fdfdfd;
-            font-size: 0.7rem;
-            color: #4b5563;
-            border-bottom: 1px solid #e5e7eb;
-            padding: 0.5rem;
-            line-height: 1.2;
-        }
-        .calculation-memo b { color: #111827; }
+        .bg-0 { background-color: #ef4444; }
+        .bg-1 { background-color: #f59e0b; }
+        .bg-2 { background-color: #10b981; }
+        .bg-3 { background-color: #3b82f6; }
 
-        /* Cards de Preço */
-        .price-card { padding: 0.75rem; border-radius: 0.75rem; border: 2px solid; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .yellow-card { border-color: #f59e0b; background-color: rgba(245, 158, 11, 0.05); color: #b45309; }
-        .green-card { border-color: #10b981; background-color: rgba(16, 185, 129, 0.05); color: #047857; }
-        .blue-card { border-color: #3b82f6; background-color: rgba(59, 130, 246, 0.05); color: #1d4ed8; }
+        /* Resultado e Cópia */
+        .result-box { background: var(--result-bg); color: var(--result-text); padding: 18px; border-radius: 15px; font-family: 'Courier New', monospace; font-size: 0.95rem; white-space: pre-wrap; margin-bottom: 15px; min-height: 100px; border: 1px solid var(--primary); line-height: 1.4; }
+        .copy-btn { width: 100%; background-color: var(--primary); color: white; padding: 18px; border: none; border-radius: 15px; font-weight: 800; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4); }
+        .copy-btn:active { transform: translateY(2px); box-shadow: none; }
+
+        /* Modal de Configurações */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); display: none; align-items: center; justify-content: center; z-index: 200; padding: 20px; backdrop-filter: blur(4px); }
+        .modal-content { background: var(--bg-card); width: 100%; max-width: 400px; border-radius: 25px; padding: 25px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border: 1px solid var(--border-color); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-weight: 800; font-size: 1.2rem; }
+        .close-modal { font-size: 1.5rem; cursor: pointer; background: none; border: none; color: var(--text-main); }
+        .price-input-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .price-input-row span { flex: 1; font-weight: 700; font-size: 0.9rem; }
+        .price-input-row input { flex: 1; margin-bottom: 0; text-align: right; font-weight: 800; }
+
+        /* Mensagem flutuante */
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 12px 24px; border-radius: 30px; font-size: 0.9rem; font-weight: bold; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 300; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
     </style>
 </head>
-<body class="p-4">
+<body>
 
-    <div class="container mx-auto">
-        <!-- CABEÇALHO -->
-        <h1 class="text-3xl font-extrabold text-indigo-800 mb-6 border-b-4 border-indigo-200 pb-2">
-            💪 Personal Trainer Heleninha | Pagamento Total 💰
-        </h1>
+    <div class="container">
+        <header>
+            <h1>💪 HELENINHA TRAINER</h1>
+            <div class="header-actions">
+                <button class="action-btn" onclick="toggleSettings()" title="Ajustar Preços">⚙️</button>
+                <button class="action-btn" onclick="cycleTheme()" id="theme-icon">☀️</button>
+            </div>
+        </header>
+
+        <div class="card">
+            <span class="label">Mês</span>
+            <select id="month-select" onchange="generateDates()"></select>
+
+            <span class="label">Ano</span>
+            <div class="year-stepper">
+                <button class="step-btn" onclick="changeYear(-1)">−</button>
+                <span id="year-display" class="year-display">2025</span>
+                <button class="step-btn" onclick="changeYear(1)">+</button>
+            </div>
+
+            <span class="label">Dia da Aula</span>
+            <select id="day-select" onchange="generateDates()">
+                <option value="1">Segunda-feira</option>
+                <option value="2">Terça-feira</option>
+                <option value="3">Quarta-feira</option>
+                <option value="4">Quinta-feira</option>
+                <option value="5">Sexta-feira</option>
+                <option value="6">Sábado</option>
+                <option value="0">Domingo</option>
+            </select>
+
+            <span class="label">Nº Alunos (Toque para alterar)</span>
+            <div id="session-container" class="session-grid"></div>
+        </div>
+
+        <div class="label">Resumo para Enviar:</div>
+        <div id="result-text" class="result-box"></div>
         
-        <!-- Regras de Preço Fixo -->
-        <div class="bg-white shadow-xl rounded-2xl p-4 mb-8 border border-indigo-100">
-            <h2 class="text-xl mb-4">Regras de Preço da Sessão</h2>
-            <div class="grid grid-cols-3 gap-3 text-center" id="price-cards-container">
-                <!-- Cards Gerados pelo JS -->
-            </div>
-        </div>
+        <button class="copy-btn" onclick="copyToClipboard()">COPIAR PARA WHATSAPP</button>
 
-        <!-- Totalizador -->
-        <div class="bg-indigo-600 text-white p-4 rounded-xl shadow-lg mb-8">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                <span class="text-lg font-medium">Pagamento Total Estimado (13 Meses):</span>
-                <span class="text-3xl font-bold mt-1 sm:mt-0" id="grand-total-display">R$ 0,00</span>
-            </div>
-            <p class="text-xs opacity-80 mt-1">Este é o valor acumulado no período de planejamento.</p>
-        </div>
-
-        <!-- Grade de 13 Meses -->
-        <div class="space-y-6">
-            <h2 class="text-xl">Previsão Mensal e Memória Contábil</h2>
-            <p class='text-xs text-gray-500 mb-2 italic'>Clique nos círculos coloridos para alterar o número de alunos na aula.</p>
-            
-            <div class="overflow-x-auto shadow-md rounded-xl border border-gray-200">
-                <table class="min-w-full bg-white" id="monthly-table">
-                    <thead class="bg-indigo-50 border-b border-gray-200">
-                        <tr>
-                            <th class="py-3 px-2 text-left text-xs font-semibold text-indigo-700 uppercase sticky left-0 bg-indigo-50 z-10">Mês</th>
-                            <th class="py-3 px-1 text-center text-xs font-semibold text-indigo-700 uppercase">Semanas</th>
-                            <th class="py-3 px-1 text-center text-xs font-semibold text-indigo-700 uppercase w-12">S1</th>
-                            <th class="py-3 px-1 text-center text-xs font-semibold text-indigo-700 uppercase w-12">S2</th>
-                            <th class="py-3 px-1 text-center text-xs font-semibold text-indigo-700 uppercase w-12">S3</th>
-                            <th class="py-3 px-1 text-center text-xs font-semibold text-indigo-700 uppercase w-12">S4</th>
-                            <th class="py-3 px-1 text-center text-xs font-semibold text-indigo-700 uppercase w-12">S5</th>
-                            <th class="py-3 px-2 text-right text-xs font-semibold text-indigo-700 uppercase">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="monthly-body">
-                        <!-- Conteúdo Gerado pelo JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Rodapé -->
-        <div class="mt-8 pt-4 border-t text-[10px] text-gray-400 text-center">
-          <p>Aplicação Offline (Heleninha Trainer). Todos os dados são salvos localmente.</p>
-        </div>
+        <div id="toast" class="toast">✓ Copiado com sucesso!</div>
     </div>
 
-    <!-- Mensagem de Status -->
-    <div id="status-message" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 p-3 rounded-xl shadow-lg text-white font-medium bg-green-500 opacity-0 transition duration-300 pointer-events-none z-50">
-        Dados salvos!
+    <!-- Modal de Configurações -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">⚙️ Configurações</span>
+                <button class="close-modal" onclick="toggleSettings()">×</button>
+            </div>
+            <span class="label">Valores dos Pacotes (Sessão)</span>
+            
+            <div class="price-input-row">
+                <span>Solo (1 Aluno):</span>
+                <input type="number" id="price-1" class="input-styled" placeholder="75" onchange="saveSettings()">
+            </div>
+            <div class="price-input-row">
+                <span>Duo (2 Alunos):</span>
+                <input type="number" id="price-2" class="input-styled" placeholder="95" onchange="saveSettings()">
+            </div>
+            <div class="price-input-row">
+                <span>Trio (3 Alunos):</span>
+                <input type="number" id="price-3" class="input-styled" placeholder="115" onchange="saveSettings()">
+            </div>
+
+            <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 15px; text-align: center;">
+                * Os valores alterados aplicam-se imediatamente ao resumo.
+            </p>
+            <button class="copy-btn" style="margin-top: 10px; background-color: var(--text-main);" onclick="toggleSettings()">FECHAR</button>
+        </div>
     </div>
 
     <script>
-        const LOCAL_STORAGE_KEY = 'heleninha_trainer_data_v2';
-        const MONTH_NAMES_PT = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-        const FIXED_SESSION_PRICES = { 1: 75.00, 2: 95.00, 3: 115.00 };
+        const MONTH_NAMES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+        const THEMES = ['light', 'dark', 'violet'];
+        
+        let prices = { 1: 75, 2: 95, 3: 115 };
+        let currentSessions = [];
+        let currentYear = new Date().getFullYear();
+        let currentThemeIndex = 0;
 
-        let appData = { monthlyData: [] };
+        window.onload = () => {
+            // Carregar Configurações
+            const savedSettings = localStorage.getItem('heleninha_settings');
+            if (savedSettings) {
+                prices = JSON.parse(savedSettings);
+            }
+            document.getElementById('price-1').value = prices[1];
+            document.getElementById('price-2').value = prices[2];
+            document.getElementById('price-3').value = prices[3];
 
-        const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+            // Carregar Tema
+            const savedTheme = localStorage.getItem('heleninha_theme') || 'light';
+            setTheme(savedTheme);
+            currentThemeIndex = THEMES.indexOf(savedTheme);
 
-        /** Retorna os dias (números) de todas as segundas-feiras do mês */
-        const getMondaysInMonth = (year, month) => {
-            let mondays = [];
-            let date = new Date(year, month, 1);
+            const now = new Date();
+            const monthSelect = document.getElementById('month-select');
+            MONTH_NAMES.forEach((m, i) => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.text = m;
+                if(i === now.getMonth()) opt.selected = true;
+                monthSelect.appendChild(opt);
+            });
+            
+            updateYearDisplay();
+            
+            const savedConfig = localStorage.getItem('heleninha_config_v4');
+            if(savedConfig) {
+                const data = JSON.parse(savedConfig);
+                document.getElementById('day-select').value = data.day;
+                currentYear = data.year || currentYear;
+                updateYearDisplay();
+            }
+
+            generateDates();
+        };
+
+        function toggleSettings() {
+            const modal = document.getElementById('settings-modal');
+            modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        function saveSettings() {
+            prices[1] = parseFloat(document.getElementById('price-1').value) || 0;
+            prices[2] = parseFloat(document.getElementById('price-2').value) || 0;
+            prices[3] = parseFloat(document.getElementById('price-3').value) || 0;
+            localStorage.setItem('heleninha_settings', JSON.stringify(prices));
+            updateResult();
+        }
+
+        function cycleTheme() {
+            currentThemeIndex = (currentThemeIndex + 1) % THEMES.length;
+            const theme = THEMES[currentThemeIndex];
+            setTheme(theme);
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('heleninha_theme', theme);
+            const icons = { 'light': '☀️', 'dark': '🌙', 'violet': '🔮' };
+            document.getElementById('theme-icon').innerText = icons[theme];
+        }
+
+        function changeYear(delta) {
+            currentYear += delta;
+            updateYearDisplay();
+            generateDates();
+        }
+
+        function updateYearDisplay() {
+            document.getElementById('year-display').innerText = currentYear;
+        }
+
+        function generateDates() {
+            const month = parseInt(document.getElementById('month-select').value);
+            const targetDay = parseInt(document.getElementById('day-select').value);
+            
+            currentSessions = [];
+            let date = new Date(currentYear, month, 1);
+            
             while (date.getMonth() === month) {
-                if (date.getDay() === 1) mondays.push(date.getDate());
+                if (date.getDay() === targetDay) {
+                    const d = String(date.getDate()).padStart(2, '0');
+                    const m = String(date.getMonth() + 1).padStart(2, '0');
+                    currentSessions.push({ date: `${d}/${m}`, students: 3 });
+                }
                 date.setDate(date.getDate() + 1);
             }
-            return mondays;
-        };
 
-        const loadData = () => {
-            const today = new Date();
-            const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-            let months = [];
+            renderSelectors();
+            updateResult();
+            
+            localStorage.setItem('heleninha_config_v4', JSON.stringify({ 
+                day: targetDay, 
+                year: currentYear 
+            }));
+        }
 
-            for (let i = 0; i < 13; i++) {
-                let d = new Date(start.getFullYear(), start.getMonth() + i, 1);
-                let y = d.getFullYear();
-                let m = d.getMonth();
-                months.push({
-                    monthYear: `${y}-${String(m + 1).padStart(2, '0')}`,
-                    label: `${MONTH_NAMES_PT[m]} ${y}`,
-                    year: y,
-                    monthIdx: m,
-                    weeks: [0, 0, 0, 0, 0],
-                    mondays: getMondaysInMonth(y, m)
-                });
-            }
-
-            const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-            if (stored) {
-                const parsed = JSON.parse(stored);
-                months = months.map(m => {
-                    const saved = parsed.monthlyData.find(s => s.monthYear === m.monthYear);
-                    if (saved) m.weeks = saved.weeks;
-                    return m;
-                });
-            }
-            appData.monthlyData = months;
-            render();
-        };
-
-        const saveData = () => {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ monthlyData: appData.monthlyData }));
-            const status = document.getElementById('status-message');
-            status.style.opacity = '1';
-            setTimeout(() => status.style.opacity = '0', 1500);
-            render();
-        };
-
-        const handleSelect = (mIdx, wIdx, val) => {
-            appData.monthlyData[mIdx].weeks[wIdx] = parseInt(val);
-            saveData();
-        };
-
-        const render = () => {
-            // Render Cards
-            const cards = document.getElementById('price-cards-container');
-            cards.innerHTML = `
-                <div class="price-card yellow-card"><p class="text-sm font-bold">Solo</p><p class="text-lg font-extrabold">R$ 75</p></div>
-                <div class="price-card green-card"><p class="text-sm font-bold">Duo</p><p class="text-lg font-extrabold">R$ 95</p></div>
-                <div class="price-card blue-card"><p class="text-sm font-bold">Trio</p><p class="text-lg font-extrabold">R$ 115</p></div>
-            `;
-
-            // Render Table
-            const tbody = document.getElementById('monthly-body');
-            tbody.innerHTML = '';
-            let grandTotal = 0;
-
-            appData.monthlyData.forEach((m, mIdx) => {
-                let monthTotal = 0;
-                let calcParts = [];
-                
-                m.weeks.forEach((q, wIdx) => {
-                    if (q > 0) {
-                        const price = FIXED_SESSION_PRICES[q];
-                        monthTotal += price;
-                        const date = m.mondays[wIdx] ? String(m.mondays[wIdx]).padStart(2, '0') : '--';
-                        calcParts.push(`${date} (${q} alunos ${price})`);
-                    }
-                });
-                grandTotal += monthTotal;
-
-                const isCurrent = m.monthYear === `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-                
-                // Row de inputs
-                const trData = document.createElement('tr');
-                trData.className = isCurrent ? "bg-indigo-100/50" : "";
-                trData.innerHTML = `
-                    <td class="py-3 px-2 text-xs font-bold sticky left-0 ${isCurrent ? 'bg-indigo-100' : 'bg-white'} z-0">
-                        ${m.label.split(' ')[0]}<br><span class="text-[9px] font-normal text-gray-400">${m.label.split(' ')[1]}</span>
-                    </td>
-                    <td class="text-center text-xs font-medium">${m.mondays.length}</td>
-                    ${[0,1,2,3,4].map(wIdx => {
-                        const q = m.weeks[wIdx];
-                        const disabled = wIdx >= m.mondays.length;
-                        const color = q === 0 ? "bg-red-500" : q === 1 ? "bg-yellow-500" : q === 2 ? "bg-green-500" : "bg-blue-500";
-                        return `
-                            <td class="px-1 ${disabled ? 'bg-gray-100' : ''}">
-                                <select onchange="handleSelect(${mIdx}, ${wIdx}, this.value)" class="session-select ${color} ${disabled ? 'opacity-20 pointer-events-none' : ''}" ${disabled ? 'disabled' : ''}>
-                                    <option value="0" ${q===0?'selected':''}>0</option>
-                                    <option value="1" ${q===1?'selected':''}>1</option>
-                                    <option value="2" ${q===2?'selected':''}>2</option>
-                                    <option value="3" ${q===3?'selected':''}>3</option>
-                                </select>
-                            </td>
-                        `;
-                    }).join('')}
-                    <td class="py-3 px-2 text-right text-xs font-bold">${formatCurrency(monthTotal)}</td>
+        function renderSelectors() {
+            const container = document.getElementById('session-container');
+            container.innerHTML = '';
+            currentSessions.forEach((s, i) => {
+                const div = document.createElement('div');
+                div.className = 'session-box';
+                div.innerHTML = `
+                    <span class="date-label">${s.date}</span>
+                    <select class="session-select bg-${s.students}" onchange="updateAttendance(${i}, this.value)">
+                        <option value="0" ${s.students === 0 ? 'selected' : ''}>0</option>
+                        <option value="1" ${s.students === 1 ? 'selected' : ''}>1</option>
+                        <option value="2" ${s.students === 2 ? 'selected' : ''}>2</option>
+                        <option value="3" ${s.students === 3 ? 'selected' : ''}>3</option>
+                    </select>
                 `;
-                tbody.appendChild(trData);
+                container.appendChild(div);
+            });
+        }
 
-                // Row de Memória de Cálculo
-                if (monthTotal > 0) {
-                    const trMemo = document.createElement('tr');
-                    trMemo.innerHTML = `
-                        <td colspan="8" class="calculation-memo">
-                            <b>Contabilidade:</b> ${m.label.split(' ')[0]} com ${m.mondays.length} semanas. 
-                            Segundas: ${calcParts.join(', ')}. 
-                            Total: <b>${formatCurrency(monthTotal)}</b>
-                        </td>
-                    `;
-                    tbody.appendChild(trMemo);
+        function updateAttendance(index, value) {
+            currentSessions[index].students = parseInt(value);
+            renderSelectors();
+            updateResult();
+        }
+
+        function updateResult() {
+            const monthIndex = document.getElementById('month-select').value;
+            const monthName = MONTH_NAMES[monthIndex];
+            let total = 0;
+            
+            let lines = `🗓️ *${monthName.toUpperCase()} / ${currentYear}*\n\n`;
+            
+            currentSessions.forEach(s => {
+                if(s.students > 0) {
+                    const price = prices[s.students];
+                    total += price;
+                    lines += `${s.date} - ${s.students} aluno(s) (R$ ${price})\n`;
+                } else {
+                    lines += `${s.date} - Sem aula / Falta\n`;
                 }
             });
 
-            document.getElementById('grand-total-display').textContent = formatCurrency(grandTotal);
-        };
+            lines += `\n💰 *TOTAL: R$ ${total.toFixed(2).replace('.', ',')}*`;
+            document.getElementById('result-text').innerText = lines;
+        }
 
-        window.onload = loadData;
+        function copyToClipboard() {
+            const text = document.getElementById('result-text').innerText;
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            
+            try {
+                document.execCommand('copy');
+                const toast = document.getElementById('toast');
+                toast.style.opacity = '1';
+                setTimeout(() => toast.style.opacity = '0', 2000);
+            } catch (err) {
+                console.error('Erro ao copiar texto');
+            }
+            
+            document.body.removeChild(el);
+        }
     </script>
 </body>
 </html>
