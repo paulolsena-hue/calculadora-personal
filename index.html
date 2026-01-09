@@ -206,7 +206,7 @@
         .price-input-row span { flex: 1.5; font-weight: 700; font-size: 0.9rem; color: var(--text-muted); }
         .price-input-row input { flex: 1; margin-bottom: 0; text-align: right; font-weight: 800; border-color: var(--border-color); color: var(--primary); }
 
-        .supabase-status { font-size: 0.7rem; margin-top: 5px; display: block; }
+        .supabase-status { font-size: 0.7rem; margin-top: 10px; display: block; text-align: center; font-weight: 600; }
         .status-online { color: #10b981; }
         .status-offline { color: #ef4444; }
 
@@ -296,13 +296,11 @@
 
             <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
             
-            <span class="label">Sincronização Supabase</span>
-            <input type="text" id="supabase-url" class="input-styled" placeholder="Supabase Project URL" onchange="saveSettings()">
-            <input type="text" id="supabase-key" class="input-styled" placeholder="Anon API Key" onchange="saveSettings()">
+            <span class="label">Sincronização Cloud</span>
             <span id="supabase-status" class="supabase-status status-offline">● Desconectado</span>
 
             <p style="font-size: 0.7rem; color: var(--text-muted); margin: 20px 0; text-align: center; font-style: italic;">
-                Os dados são salvos localmente por segurança.
+                As credenciais da nuvem estão configuradas internamente.
             </p>
             <button class="copy-btn" style="width:100%" onclick="toggleSettings()">CONCLUÍDO</button>
         </div>
@@ -312,7 +310,7 @@
         const MONTH_NAMES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const THEMES = ['light', 'dark', 'violet'];
         
-        // Teus dados do Supabase inseridos como padrão
+        // Teus dados do Supabase inseridos de forma fixa no código (ocultos da visualização)
         const DEFAULT_SUPABASE_URL = "https://xmbydwfxkbpcjmojtyvk.supabase.co";
         const DEFAULT_SUPABASE_KEY = "sb_publishable_9cmC_iJS5VL6j_W_CetgXw_k-pf5gii";
 
@@ -325,28 +323,23 @@
         let supabaseClient = null;
 
         window.onload = () => {
-            // Restaurar Configurações de Preços e Supabase
+            // Restaurar Configurações de Preços
             const savedSettings = localStorage.getItem('heleninha_settings');
-            let supabaseUrl = DEFAULT_SUPABASE_URL;
-            let supabaseKey = DEFAULT_SUPABASE_KEY;
-
+            
             if (savedSettings) {
                 const settings = JSON.parse(savedSettings);
                 prices = settings.prices || prices;
-                supabaseUrl = settings.supabaseUrl || DEFAULT_SUPABASE_URL;
-                supabaseKey = settings.supabaseKey || DEFAULT_SUPABASE_KEY;
             }
 
-            // Aplicar aos campos e iniciar Supabase
-            document.getElementById('supabase-url').value = supabaseUrl;
-            document.getElementById('supabase-key').value = supabaseKey;
+            // Aplicar preços aos campos
             document.getElementById('price-1').value = prices[1];
             document.getElementById('price-2').value = prices[2];
             document.getElementById('price-3').value = prices[3];
             
-            initSupabase(supabaseUrl, supabaseKey);
+            // Iniciar Supabase com os dados fixos
+            initSupabase(DEFAULT_SUPABASE_URL, DEFAULT_SUPABASE_KEY);
 
-            // Restaurar Histórico
+            // Restaurar Histórico Local
             const savedHistory = localStorage.getItem('heleninha_history');
             if (savedHistory) {
                 history = JSON.parse(savedHistory);
@@ -386,7 +379,7 @@
             if (url && key) {
                 try {
                     supabaseClient = supabase.createClient(url, key);
-                    document.getElementById('supabase-status').innerText = "● Conectado ao Supabase";
+                    document.getElementById('supabase-status').innerText = "● Sincronização Ativa";
                     document.getElementById('supabase-status').className = "supabase-status status-online";
                 } catch (e) {
                     console.error("Supabase Init Error", e);
@@ -402,21 +395,15 @@
         }
 
         function saveSettings() {
-            const supabaseUrl = document.getElementById('supabase-url').value;
-            const supabaseKey = document.getElementById('supabase-key').value;
-            
             prices[1] = parseFloat(document.getElementById('price-1').value) || 0;
             prices[2] = parseFloat(document.getElementById('price-2').value) || 0;
             prices[3] = parseFloat(document.getElementById('price-3').value) || 0;
             
             const settings = {
-                prices,
-                supabaseUrl,
-                supabaseKey
+                prices: prices
             };
             
             localStorage.setItem('heleninha_settings', JSON.stringify(settings));
-            initSupabase(supabaseUrl, supabaseKey);
             updateResult();
         }
 
@@ -518,43 +505,48 @@
             const toast = document.getElementById('toast');
             toast.innerText = msg;
             toast.style.opacity = '1';
-            setTimeout(() => toast.style.opacity = '0', 2000);
+            setTimeout(() => toast.style.opacity = '0', 3500);
         }
 
         async function saveToHistory() {
             const monthName = MONTH_NAMES[document.getElementById('month-select').value];
             const now = new Date();
-            const timestamp = `${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}`;
+            const timestampStr = `${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}`;
             
             const entry = {
                 title: `${monthName.toUpperCase()} / ${currentYear}`,
                 total: currentTotal,
-                time: timestamp,
+                time: timestampStr,
                 id: Date.now()
             };
 
             // Local Save
             history.unshift(entry);
-            if(history.length > 10) history.pop();
+            if(history.length > 15) history.pop();
             localStorage.setItem('heleninha_history', JSON.stringify(history));
             renderHistory();
 
-            // Supabase Save (Se configurado)
+            // Supabase Save
             if (supabaseClient) {
-                const { error } = await supabaseClient
-                    .from('trainer_history') 
-                    .insert([{ 
-                        title: entry.title, 
-                        total: entry.total, 
-                        timestamp: now.toISOString(),
-                        details: document.getElementById('result-text').innerText
-                    }]);
-                
-                if (error) {
-                    console.error("Supabase Save Error", error);
-                    showToast("Salvo localmente (Erro nuvem)");
-                } else {
-                    showToast("✓ Sincronizado na nuvem!");
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('trainer_history') 
+                        .insert([{ 
+                            title: entry.title, 
+                            total: entry.total, 
+                            timestamp: now.toISOString(),
+                            details: document.getElementById('result-text').innerText
+                        }]);
+                    
+                    if (error) {
+                        console.error("Supabase Save Error:", error);
+                        showToast(`Salvo local. Erro nuvem: ${error.message}`);
+                    } else {
+                        showToast("✓ Sincronizado na nuvem!");
+                    }
+                } catch (e) {
+                    console.error("Critical Save Error:", e);
+                    showToast("Erro crítico ao salvar na nuvem.");
                 }
             } else {
                 showToast("✓ Salvo localmente!");
