@@ -3,116 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Heleninha Trainer - Gestão</title>
+    <title>Heleninha Trainer - Gestão Profissional</title>
+    <!-- Font Fredoka para títulos amigáveis -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Configurações para iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Resumo PT">
+    <meta name="apple-mobile-web-app-title" content="Heleninha PT">
     
     <style>
-        /* Variáveis de Tema */
+        /* Variáveis de Tema Conforme Protocolo UI */
         :root {
-            --bg-body: #f3f4f6;
-            --bg-card: #ffffff;
-            --text-main: #1f2937;
-            --text-muted: #4b5563;
-            --primary: #4f46e5;
-            --primary-hover: #3730a3;
-            --border-color: #e5e7eb;
-            --result-bg: #111827;
-            --result-text: #10b981;
-            --modal-overlay: rgba(0, 0, 0, 0.5);
+            --bg-body: #F0F4FF; /* Azul Gelo Claríssimo */
+            --bg-card: #FFFFFF; /* Branco */
+            --text-main: #1D2D6B; /* Azul Marinho para contraste */
+            --text-muted: #5C6B9A;
+            --primary: #3D79FF; /* Azul Médio */
+            --primary-hover: #2C5ED6;
+            --accent: #FF8FB1; /* Rosa Suave (Destaque) */
+            --navy: #1D2D6B; /* Azul Marinho Profundo */
+            --border-color: #DDE5F5;
+            --result-bg: #0A0F1E;
+            --result-text: #3D79FF;
+            --radius-card: 24px;
+            --radius-input: 16px;
         }
 
         [data-theme='dark'] {
-            --bg-body: #111827;
-            --bg-card: #1f2937;
-            --text-main: #f9fafb;
-            --text-muted: #9ca3af;
-            --primary: #6366f1;
-            --primary-hover: #818cf8;
-            --border-color: #374151;
+            --bg-body: #0A0F1E;
+            --bg-card: #161C2D;
+            --text-main: #F0F4FF;
+            --text-muted: #8E9ABF;
+            --border-color: #242D45;
             --result-bg: #000000;
-            --result-text: #34d399;
-            --modal-overlay: rgba(0, 0, 0, 0.7);
         }
 
         [data-theme='violet'] {
-            --bg-body: #f5f3ff;
-            --bg-card: #ffffff;
-            --text-main: #4c1d95;
-            --text-muted: #6d28d9;
-            --primary: #7c3aed;
-            --primary-hover: #5b21b6;
-            --border-color: #ddd6fe;
-            --result-bg: #2e1065;
-            --result-text: #a78bfa;
-            --modal-overlay: rgba(76, 29, 149, 0.4);
+            --bg-body: #F5F3FF;
+            --bg-card: #FFFFFF;
+            --text-main: #4C1D95;
+            --primary: #7C3AED;
+            --accent: #FF8FB1;
+            --navy: #2E1065;
         }
 
-        * { box-sizing: border-box; transition: background-color 0.2s, color 0.2s; -webkit-tap-highlight-color: transparent; }
-        html { font-family: 'Inter', -apple-system, sans-serif; }
-        body { background-color: var(--bg-body); margin: 0; padding: 15px; color: var(--text-main); line-height: 1.5; }
+        * { box-sizing: border-box; transition: all 0.2s ease-in-out; -webkit-tap-highlight-color: transparent; }
+        html { font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-body); margin: 0; padding: 20px; color: var(--text-main); line-height: 1.5; }
         .container { max-width: 500px; margin: 0 auto; }
 
-        /* Cabeçalho */
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
-        h1 { font-size: 1.1rem; margin: 0; font-weight: 800; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        h1 { font-family: 'Fredoka', sans-serif; font-size: 1.4rem; margin: 0; font-weight: 700; letter-spacing: -0.02em; }
 
-        /* Botões de Ação */
-        .header-actions { display: flex; gap: 6px; }
-        .action-btn { border: 1px solid var(--border-color); background: var(--bg-card); width: 36px; height: 36px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: var(--text-main); }
+        .header-actions { display: flex; gap: 10px; }
+        .action-btn { 
+            border: none; 
+            background: var(--primary); 
+            color: white;
+            width: 42px; height: 42px; 
+            border-radius: 14px; 
+            cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 1.2rem; 
+            box-shadow: 0 4px 10px rgba(61, 121, 255, 0.2);
+        }
+        .action-btn:active { transform: scale(0.9); background-color: var(--accent); }
 
-        /* Cartão de Configuração */
-        .card { background: var(--bg-card); padding: 20px; border-radius: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid var(--border-color); margin-bottom: 20px; }
-        .label { display: block; font-size: 0.7rem; font-weight: 800; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .card { 
+            background: var(--bg-card); 
+            padding: 24px; 
+            border-radius: var(--radius-card); 
+            box-shadow: 0 15px 30px -5px rgba(29, 45, 107, 0.05); 
+            border: 1px solid var(--border-color); 
+            margin-bottom: 25px; 
+        }
+
+        .label { 
+            display: block; 
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.8rem; 
+            font-weight: 600; 
+            margin-bottom: 10px; 
+            color: var(--text-muted); 
+            text-transform: uppercase; 
+            letter-spacing: 0.08em; 
+        }
         
-        select, .input-styled { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 15px; font-size: 1rem; background-color: var(--bg-card); color: var(--text-main); outline: none; }
+        select, .input-styled { 
+            width: 100%; padding: 14px; 
+            border-radius: var(--radius-input); 
+            border: 2px solid var(--border-color); 
+            margin-bottom: 20px; 
+            font-size: 1rem; 
+            background-color: var(--bg-body); 
+            color: var(--text-main); 
+            outline: none; 
+            font-weight: 600;
+        }
 
-        /* Stepper de Ano */
-        .year-stepper { display: flex; align-items: center; justify-content: space-between; background: var(--bg-body); border-radius: 12px; padding: 6px; margin-bottom: 18px; border: 1px solid var(--border-color); }
-        .step-btn { background: var(--primary); color: white; border: none; width: 44px; height: 44px; border-radius: 10px; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .year-display { font-size: 1.2rem; font-weight: 800; }
+        .year-stepper { 
+            display: flex; align-items: center; justify-content: space-between; 
+            background: var(--bg-body); 
+            border-radius: var(--radius-input); 
+            padding: 8px; margin-bottom: 20px; 
+            border: 2px solid var(--border-color); 
+        }
+        .step-btn { 
+            background: var(--primary); color: white; 
+            border: none; width: 44px; height: 44px; 
+            border-radius: 12px; font-size: 1.5rem; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center; 
+        }
+        .year-display { font-family: 'Fredoka', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--navy); }
 
-        /* Grade de Sessões */
-        .session-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(65px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .session-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(65px, 1fr)); gap: 15px; margin-bottom: 10px; }
         .session-box { text-align: center; display: flex; flex-direction: column; align-items: center; }
-        .date-label { font-size: 0.75rem; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-muted); }
+        .date-label { font-size: 0.75rem; font-weight: 700; margin-bottom: 8px; display: block; color: var(--text-muted); }
         
-        /* Seletor Centralizado */
         .session-select {
             -webkit-appearance: none; appearance: none;
-            width: 55px; height: 55px; border-radius: 50%; border: none;
-            color: white; font-weight: 900; font-size: 1.3rem;
+            width: 58px; height: 58px; border-radius: 50%; border: none;
+            color: white; font-weight: 700; font-size: 1.4rem;
             text-align: center; text-align-last: center; 
             cursor: pointer; padding: 0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            background-color: var(--primary); 
+            box-shadow: 0 6px 12px rgba(61, 121, 255, 0.15);
             display: flex; align-items: center; justify-content: center;
             outline: none;
         }
+        
+        .bg-0 { background-color: #B0B9D1; opacity: 0.6; }
+        .bg-1 { background-color: var(--primary); }
+        .bg-2 { background-color: #2C5ED6; }
+        .bg-3 { background-color: var(--navy); }
 
-        .bg-0 { background-color: #ef4444; }
-        .bg-1 { background-color: #f59e0b; }
-        .bg-2 { background-color: #10b981; }
-        .bg-3 { background-color: #3b82f6; }
+        .result-box { 
+            background: var(--result-bg); color: #8E9ABF; 
+            padding: 20px; border-radius: 20px; 
+            font-family: 'Courier New', monospace; font-size: 0.95rem; 
+            white-space: pre-wrap; margin-bottom: 10px; 
+            min-height: 100px; border: 2px solid var(--primary); line-height: 1.5; 
+        }
+        
+        .button-group { display: flex; gap: 10px; margin-bottom: 25px; }
 
-        /* Resultado e Cópia */
-        .result-box { background: var(--result-bg); color: var(--result-text); padding: 18px; border-radius: 15px; font-family: 'Courier New', monospace; font-size: 0.95rem; white-space: pre-wrap; margin-bottom: 15px; min-height: 100px; border: 1px solid var(--primary); line-height: 1.4; }
-        .copy-btn { width: 100%; background-color: var(--primary); color: white; padding: 18px; border: none; border-radius: 15px; font-weight: 800; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4); }
-        .copy-btn:active { transform: translateY(2px); box-shadow: none; }
+        .copy-btn { 
+            flex: 2;
+            background-color: var(--navy); 
+            color: white; 
+            padding: 18px; 
+            border: none; 
+            border-radius: 18px; 
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600; font-size: 1rem; 
+            cursor: pointer; 
+            box-shadow: 0 8px 20px rgba(29, 45, 107, 0.2); 
+            text-transform: uppercase;
+        }
 
-        /* Modal de Configurações */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); display: none; align-items: center; justify-content: center; z-index: 200; padding: 20px; backdrop-filter: blur(4px); }
-        .modal-content { background: var(--bg-card); width: 100%; max-width: 400px; border-radius: 25px; padding: 25px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border: 1px solid var(--border-color); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-title { font-weight: 800; font-size: 1.2rem; }
-        .close-modal { font-size: 1.5rem; cursor: pointer; background: none; border: none; color: var(--text-main); }
-        .price-input-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-        .price-input-row span { flex: 1; font-weight: 700; font-size: 0.9rem; }
-        .price-input-row input { flex: 1; margin-bottom: 0; text-align: right; font-weight: 800; }
+        .save-btn {
+            flex: 1;
+            background-color: var(--accent);
+            color: white;
+            padding: 18px;
+            border: none;
+            border-radius: 18px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600; font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(255, 143, 177, 0.2);
+        }
 
-        /* Mensagem flutuante */
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 12px 24px; border-radius: 30px; font-size: 0.9rem; font-weight: bold; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 300; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .copy-btn:active, .save-btn:active { transform: translateY(3px); box-shadow: none; }
+
+        /* Histórico */
+        .history-section { margin-top: 30px; }
+        .history-title { font-family: 'Fredoka', sans-serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px; color: var(--navy); display: flex; justify-content: space-between; align-items: center; }
+        .clear-history { font-size: 0.7rem; color: var(--accent); cursor: pointer; text-transform: uppercase; border: 1px solid var(--accent); padding: 4px 8px; border-radius: 8px; }
+        
+        .history-list { display: flex; flex-direction: column; gap: 12px; }
+        .history-item { 
+            background: var(--bg-card); 
+            padding: 16px; 
+            border-radius: 18px; 
+            border-left: 5px solid var(--primary); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+        .history-header { display: flex; justify-content: space-between; font-weight: 700; font-size: 0.9rem; margin-bottom: 5px; }
+        .history-date { font-size: 0.7rem; color: var(--text-muted); }
+        .history-total { color: var(--primary); font-family: 'Fredoka', sans-serif; }
+
+        /* Modal */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 15, 30, 0.6); display: none; align-items: center; justify-content: center; z-index: 200; padding: 20px; backdrop-filter: blur(8px); }
+        .modal-content { background: var(--bg-card); width: 100%; max-width: 400px; border-radius: 32px; padding: 30px; border: 1px solid var(--border-color); overflow-y: auto; max-height: 90vh; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .modal-title { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 1.3rem; color: var(--navy); }
+        .close-modal { font-size: 2rem; cursor: pointer; background: none; border: none; color: var(--accent); font-weight: bold; }
+        
+        .price-input-row { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .price-input-row span { flex: 1.5; font-weight: 700; font-size: 0.9rem; color: var(--text-muted); }
+        .price-input-row input { flex: 1; margin-bottom: 0; text-align: right; font-weight: 800; border-color: var(--border-color); color: var(--primary); }
+
+        .supabase-status { font-size: 0.7rem; margin-top: 5px; display: block; }
+        .status-online { color: #10b981; }
+        .status-offline { color: #ef4444; }
+
+        .toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 14px 28px; border-radius: 40px; font-family: 'Fredoka', sans-serif; font-size: 0.9rem; font-weight: 600; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 300; box-shadow: 0 8px 15px rgba(255, 143, 177, 0.3); }
     </style>
 </head>
 <body>
@@ -121,13 +219,13 @@
         <header>
             <h1>💪 HELENINHA TRAINER</h1>
             <div class="header-actions">
-                <button class="action-btn" onclick="toggleSettings()" title="Ajustar Preços">⚙️</button>
+                <button class="action-btn" onclick="toggleSettings()" title="Ajustar Valores">⚙️</button>
                 <button class="action-btn" onclick="cycleTheme()" id="theme-icon">☀️</button>
             </div>
         </header>
 
         <div class="card">
-            <span class="label">Mês</span>
+            <span class="label">Mês de Cobrança</span>
             <select id="month-select" onchange="generateDates()"></select>
 
             <span class="label">Ano</span>
@@ -137,7 +235,7 @@
                 <button class="step-btn" onclick="changeYear(1)">+</button>
             </div>
 
-            <span class="label">Dia da Aula</span>
+            <span class="label">Dia da Semana</span>
             <select id="day-select" onchange="generateDates()">
                 <option value="1">Segunda-feira</option>
                 <option value="2">Terça-feira</option>
@@ -148,44 +246,65 @@
                 <option value="0">Domingo</option>
             </select>
 
-            <span class="label">Nº Alunos (Toque para alterar)</span>
+            <span class="label">Participantes por Aula</span>
             <div id="session-container" class="session-grid"></div>
         </div>
 
-        <div class="label">Resumo para Enviar:</div>
+        <div class="label">Resumo Gerado:</div>
         <div id="result-text" class="result-box"></div>
         
-        <button class="copy-btn" onclick="copyToClipboard()">COPIAR PARA WHATSAPP</button>
+        <div class="button-group">
+            <button class="copy-btn" onclick="copyToClipboard()">Copiar WhatsApp</button>
+            <button class="save-btn" onclick="saveToHistory()" title="Salvar no Histórico">💾</button>
+        </div>
 
-        <div id="toast" class="toast">✓ Copiado com sucesso!</div>
+        <!-- Seção de Histórico -->
+        <div class="history-section">
+            <div class="history-title">
+                <span>Histórico Recente</span>
+                <span class="clear-history" onclick="clearHistory()">Limpar</span>
+            </div>
+            <div id="history-list" class="history-list">
+                <!-- Itens de histórico aparecerão aqui -->
+            </div>
+        </div>
+
+        <div id="toast" class="toast">✓ Ação concluída!</div>
     </div>
 
     <!-- Modal de Configurações -->
     <div id="settings-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="modal-title">⚙️ Configurações</span>
+                <span class="modal-title">Configurações</span>
                 <button class="close-modal" onclick="toggleSettings()">×</button>
             </div>
-            <span class="label">Valores dos Pacotes (Sessão)</span>
             
+            <span class="label">Valores dos Pacotes</span>
             <div class="price-input-row">
                 <span>Solo (1 Aluno):</span>
-                <input type="number" id="price-1" class="input-styled" placeholder="75" onchange="saveSettings()">
+                <input type="number" id="price-1" class="input-styled" onchange="saveSettings()">
             </div>
             <div class="price-input-row">
                 <span>Duo (2 Alunos):</span>
-                <input type="number" id="price-2" class="input-styled" placeholder="95" onchange="saveSettings()">
+                <input type="number" id="price-2" class="input-styled" onchange="saveSettings()">
             </div>
             <div class="price-input-row">
                 <span>Trio (3 Alunos):</span>
-                <input type="number" id="price-3" class="input-styled" placeholder="115" onchange="saveSettings()">
+                <input type="number" id="price-3" class="input-styled" onchange="saveSettings()">
             </div>
 
-            <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 15px; text-align: center;">
-                * Os valores alterados aplicam-se imediatamente ao resumo.
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
+            
+            <span class="label">Sincronização Supabase</span>
+            <input type="text" id="supabase-url" class="input-styled" placeholder="Supabase Project URL" onchange="saveSettings()">
+            <input type="text" id="supabase-key" class="input-styled" placeholder="Anon API Key" onchange="saveSettings()">
+            <span id="supabase-status" class="supabase-status status-offline">● Desconectado</span>
+
+            <p style="font-size: 0.7rem; color: var(--text-muted); margin: 20px 0; text-align: center; font-style: italic;">
+                Os dados são salvos localmente por segurança.
             </p>
-            <button class="copy-btn" style="margin-top: 10px; background-color: var(--text-main);" onclick="toggleSettings()">FECHAR</button>
+            <button class="copy-btn" style="width:100%" onclick="toggleSettings()">CONCLUÍDO</button>
         </div>
     </div>
 
@@ -193,26 +312,53 @@
         const MONTH_NAMES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const THEMES = ['light', 'dark', 'violet'];
         
+        // Teus dados do Supabase inseridos como padrão
+        const DEFAULT_SUPABASE_URL = "https://xmbydwfxkbpcjmojtyvk.supabase.co";
+        const DEFAULT_SUPABASE_KEY = "sb_publishable_9cmC_iJS5VL6j_W_CetgXw_k-pf5gii";
+
         let prices = { 1: 75, 2: 95, 3: 115 };
+        let history = [];
         let currentSessions = [];
         let currentYear = new Date().getFullYear();
         let currentThemeIndex = 0;
+        let currentTotal = 0;
+        let supabaseClient = null;
 
         window.onload = () => {
-            // Carregar Configurações
+            // Restaurar Configurações de Preços e Supabase
             const savedSettings = localStorage.getItem('heleninha_settings');
+            let supabaseUrl = DEFAULT_SUPABASE_URL;
+            let supabaseKey = DEFAULT_SUPABASE_KEY;
+
             if (savedSettings) {
-                prices = JSON.parse(savedSettings);
+                const settings = JSON.parse(savedSettings);
+                prices = settings.prices || prices;
+                supabaseUrl = settings.supabaseUrl || DEFAULT_SUPABASE_URL;
+                supabaseKey = settings.supabaseKey || DEFAULT_SUPABASE_KEY;
             }
+
+            // Aplicar aos campos e iniciar Supabase
+            document.getElementById('supabase-url').value = supabaseUrl;
+            document.getElementById('supabase-key').value = supabaseKey;
             document.getElementById('price-1').value = prices[1];
             document.getElementById('price-2').value = prices[2];
             document.getElementById('price-3').value = prices[3];
+            
+            initSupabase(supabaseUrl, supabaseKey);
 
-            // Carregar Tema
+            // Restaurar Histórico
+            const savedHistory = localStorage.getItem('heleninha_history');
+            if (savedHistory) {
+                history = JSON.parse(savedHistory);
+                renderHistory();
+            }
+
+            // Restaurar Tema
             const savedTheme = localStorage.getItem('heleninha_theme') || 'light';
             setTheme(savedTheme);
             currentThemeIndex = THEMES.indexOf(savedTheme);
 
+            // Iniciar Seletores
             const now = new Date();
             const monthSelect = document.getElementById('month-select');
             MONTH_NAMES.forEach((m, i) => {
@@ -225,7 +371,7 @@
             
             updateYearDisplay();
             
-            const savedConfig = localStorage.getItem('heleninha_config_v4');
+            const savedConfig = localStorage.getItem('heleninha_config_v5');
             if(savedConfig) {
                 const data = JSON.parse(savedConfig);
                 document.getElementById('day-select').value = data.day;
@@ -236,23 +382,47 @@
             generateDates();
         };
 
+        function initSupabase(url, key) {
+            if (url && key) {
+                try {
+                    supabaseClient = supabase.createClient(url, key);
+                    document.getElementById('supabase-status').innerText = "● Conectado ao Supabase";
+                    document.getElementById('supabase-status').className = "supabase-status status-online";
+                } catch (e) {
+                    console.error("Supabase Init Error", e);
+                    document.getElementById('supabase-status').innerText = "● Erro de Ligação";
+                    document.getElementById('supabase-status').className = "supabase-status status-offline";
+                }
+            }
+        }
+
         function toggleSettings() {
             const modal = document.getElementById('settings-modal');
             modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
         }
 
         function saveSettings() {
+            const supabaseUrl = document.getElementById('supabase-url').value;
+            const supabaseKey = document.getElementById('supabase-key').value;
+            
             prices[1] = parseFloat(document.getElementById('price-1').value) || 0;
             prices[2] = parseFloat(document.getElementById('price-2').value) || 0;
             prices[3] = parseFloat(document.getElementById('price-3').value) || 0;
-            localStorage.setItem('heleninha_settings', JSON.stringify(prices));
+            
+            const settings = {
+                prices,
+                supabaseUrl,
+                supabaseKey
+            };
+            
+            localStorage.setItem('heleninha_settings', JSON.stringify(settings));
+            initSupabase(supabaseUrl, supabaseKey);
             updateResult();
         }
 
         function cycleTheme() {
             currentThemeIndex = (currentThemeIndex + 1) % THEMES.length;
-            const theme = THEMES[currentThemeIndex];
-            setTheme(theme);
+            setTheme(THEMES[currentThemeIndex]);
         }
 
         function setTheme(theme) {
@@ -291,7 +461,7 @@
             renderSelectors();
             updateResult();
             
-            localStorage.setItem('heleninha_config_v4', JSON.stringify({ 
+            localStorage.setItem('heleninha_config_v5', JSON.stringify({ 
                 day: targetDay, 
                 year: currentYear 
             }));
@@ -339,8 +509,88 @@
                 }
             });
 
+            currentTotal = total;
             lines += `\n💰 *TOTAL: R$ ${total.toFixed(2).replace('.', ',')}*`;
             document.getElementById('result-text').innerText = lines;
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.opacity = '1';
+            setTimeout(() => toast.style.opacity = '0', 2000);
+        }
+
+        async function saveToHistory() {
+            const monthName = MONTH_NAMES[document.getElementById('month-select').value];
+            const now = new Date();
+            const timestamp = `${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}`;
+            
+            const entry = {
+                title: `${monthName.toUpperCase()} / ${currentYear}`,
+                total: currentTotal,
+                time: timestamp,
+                id: Date.now()
+            };
+
+            // Local Save
+            history.unshift(entry);
+            if(history.length > 10) history.pop();
+            localStorage.setItem('heleninha_history', JSON.stringify(history));
+            renderHistory();
+
+            // Supabase Save (Se configurado)
+            if (supabaseClient) {
+                const { error } = await supabaseClient
+                    .from('trainer_history') 
+                    .insert([{ 
+                        title: entry.title, 
+                        total: entry.total, 
+                        timestamp: now.toISOString(),
+                        details: document.getElementById('result-text').innerText
+                    }]);
+                
+                if (error) {
+                    console.error("Supabase Save Error", error);
+                    showToast("Salvo localmente (Erro nuvem)");
+                } else {
+                    showToast("✓ Sincronizado na nuvem!");
+                }
+            } else {
+                showToast("✓ Salvo localmente!");
+            }
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            list.innerHTML = '';
+            
+            if(history.length === 0) {
+                list.innerHTML = '<p style="text-align:center; font-size:0.8rem; color:var(--text-muted); font-style:italic;">Nenhum registro salvo.</p>';
+                return;
+            }
+
+            history.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `
+                    <div class="history-header">
+                        <span>${item.title}</span>
+                        <span class="history-total">R$ ${item.total.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    <div class="history-date">Salvo em ${item.time}</div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function clearHistory() {
+            if(confirm("Deseja apagar todo o histórico local?")) {
+                history = [];
+                localStorage.removeItem('heleninha_history');
+                renderHistory();
+                showToast("Histórico limpo");
+            }
         }
 
         function copyToClipboard() {
@@ -352,9 +602,7 @@
             
             try {
                 document.execCommand('copy');
-                const toast = document.getElementById('toast');
-                toast.style.opacity = '1';
-                setTimeout(() => toast.style.opacity = '0', 2000);
+                showToast("✓ Copiado para o WhatsApp!");
             } catch (err) {
                 console.error('Erro ao copiar texto');
             }
