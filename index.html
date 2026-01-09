@@ -40,21 +40,12 @@
             --result-bg: #000000;
         }
 
-        [data-theme='violet'] {
-            --bg-body: #F5F3FF;
-            --bg-card: #FFFFFF;
-            --text-main: #4C1D95;
-            --primary: #7C3AED;
-            --accent: #FF8FB1;
-            --navy: #2E1065;
-        }
-
         * { box-sizing: border-box; transition: all 0.2s ease-in-out; -webkit-tap-highlight-color: transparent; }
         html { font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-body); margin: 0; padding: 20px; color: var(--text-main); line-height: 1.5; }
         .container { max-width: 500px; margin: 0 auto; }
 
-        /* Estilos de Auth (Login/Cadastro) */
+        /* Estilos de Auth */
         #auth-screen { display: flex; flex-direction: column; justify-content: center; min-height: 80vh; }
         .auth-card { background: var(--bg-card); padding: 30px; border-radius: var(--radius-card); border: 1px solid var(--border-color); box-shadow: 0 15px 30px rgba(29, 45, 107, 0.05); }
         .auth-toggle { display: flex; gap: 10px; margin-bottom: 25px; background: var(--bg-body); padding: 5px; border-radius: 12px; }
@@ -62,7 +53,7 @@
         .auth-toggle button.active { background: var(--primary); color: white; }
         .auth-footer { text-align: center; margin-top: 15px; font-size: 0.8rem; color: var(--text-muted); }
 
-        /* Estilos do App principal */
+        /* Estilos do App */
         #app-screen { display: none; }
 
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
@@ -187,8 +178,6 @@
             box-shadow: 0 8px 20px rgba(255, 143, 177, 0.2);
         }
 
-        .copy-btn:active, .save-btn:active { transform: translateY(3px); box-shadow: none; }
-
         .history-section { margin-top: 30px; }
         .history-title { font-family: 'Fredoka', sans-serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px; color: var(--navy); display: flex; justify-content: space-between; align-items: center; }
         .clear-history { font-size: 0.7rem; color: var(--accent); cursor: pointer; text-transform: uppercase; border: 1px solid var(--accent); padding: 4px 8px; border-radius: 8px; }
@@ -221,7 +210,6 @@
 
         .toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 14px 28px; border-radius: 40px; font-family: 'Fredoka', sans-serif; font-size: 0.9rem; font-weight: 600; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 300; box-shadow: 0 8px 15px rgba(255, 143, 177, 0.3); }
         
-        /* Loader */
         .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-body); display: flex; align-items: center; justify-content: center; z-index: 1000; flex-direction: column; }
         .spinner { width: 40px; height: 40px; border: 4px solid var(--border-color); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -229,63 +217,54 @@
 </head>
 <body>
 
-    <!-- Overlay de Carregamento -->
     <div id="loading-screen" class="loading-overlay">
         <div class="spinner"></div>
-        <p style="font-family:'Fredoka', sans-serif; color:var(--navy)">Heleninha Trainer</p>
+        <p style="font-family:'Fredoka', sans-serif; color:var(--navy)">A carregar...</p>
     </div>
 
-    <!-- Tela de Login / Registo -->
     <div id="auth-screen" class="container" style="display: none;">
-        <h1 style="text-align: center; margin-bottom: 25px;">👋 Bem-vinda(o)!</h1>
+        <h1 style="text-align: center; margin-bottom: 25px; font-family: 'Fredoka', sans-serif;">👋 Bem-vinda(o)!</h1>
         <div class="auth-card">
             <div class="auth-toggle">
                 <button id="btn-login-mode" class="active" onclick="setAuthMode('login')">Login</button>
                 <button id="btn-register-mode" onclick="setAuthMode('register')">Registo</button>
             </div>
-
             <div id="login-fields">
                 <span class="label">E-mail</span>
                 <input type="email" id="auth-email" class="input-styled" placeholder="exemplo@email.com">
                 <span class="label">Senha</span>
                 <input type="password" id="auth-password" class="input-styled" placeholder="••••••••">
-                
                 <div id="register-only-fields" style="display: none;">
                     <span class="label">Confirmar Senha</span>
                     <input type="password" id="auth-confirm-password" class="input-styled" placeholder="••••••••">
                 </div>
-
                 <button id="auth-submit-btn" class="copy-btn" style="width: 100%;" onclick="handleAuthSubmit()">Entrar</button>
             </div>
-            
             <p id="auth-info" class="auth-footer"></p>
         </div>
     </div>
 
-    <!-- Tela Principal do Aplicativo -->
     <div id="app-screen" class="container">
         <header>
             <h1>💪 HELENINHA TRAINER</h1>
             <div class="header-actions">
-                <button class="action-btn" onclick="toggleSettings()" title="Ajustar Valores">⚙️</button>
+                <button class="action-btn" onclick="toggleSettings()" title="Configurar">⚙️</button>
                 <button class="action-btn" onclick="cycleTheme()" id="theme-icon">☀️</button>
                 <button class="action-btn" onclick="handleLogout()" title="Sair" style="background-color: var(--accent);">🚪</button>
             </div>
         </header>
 
         <div class="card">
-            <span class="label">Mês de Cobrança</span>
-            <select id="month-select" onchange="generateDates()"></select>
-
+            <span class="label">Mês</span>
+            <select id="month-select" onchange="handleUIChange()"></select>
             <span class="label">Ano</span>
             <div class="year-stepper">
                 <button class="step-btn" onclick="changeYear(-1)">−</button>
                 <span id="year-display" class="year-display">2025</span>
                 <button class="step-btn" onclick="changeYear(1)">+</button>
             </div>
-
-            <span class="label">Dia da Semana</span>
-            <select id="day-select" onchange="generateDates()">
+            <span class="label">Dia Semanal</span>
+            <select id="day-select" onchange="handleUIChange()">
                 <option value="1">Segunda-feira</option>
                 <option value="2">Terça-feira</option>
                 <option value="3">Quarta-feira</option>
@@ -294,280 +273,159 @@
                 <option value="6">Sábado</option>
                 <option value="0">Domingo</option>
             </select>
-
-            <span class="label">Participantes por Aula</span>
+            <span class="label">Alunos por Aula</span>
             <div id="session-container" class="session-grid"></div>
         </div>
 
-        <div class="label">Resumo Gerado:</div>
+        <div class="label">Texto Formato WhatsApp:</div>
         <div id="result-text" class="result-box"></div>
         
         <div class="button-group">
             <button class="copy-btn" onclick="copyToClipboard()">Copiar WhatsApp</button>
-            <button class="save-btn" onclick="saveToHistory()" title="Salvar no Histórico">💾</button>
+            <button class="save-btn" onclick="saveToHistory()" title="Gravar na Nuvem">💾</button>
         </div>
 
         <div class="history-section">
             <div class="history-title">
-                <span>Histórico Recente</span>
+                <span>Histórico (Nuvem)</span>
                 <span class="clear-history" onclick="clearHistory()">Limpar</span>
             </div>
             <div id="history-list" class="history-list"></div>
         </div>
-
-        <div id="toast" class="toast">✓ Ação concluída!</div>
+        <div id="toast" class="toast">✓ Concluído!</div>
     </div>
 
-    <!-- Modal de Configurações -->
     <div id="settings-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="modal-title">Configurações</span>
+                <span class="modal-title">Pacotes</span>
                 <button class="close-modal" onclick="toggleSettings()">×</button>
             </div>
-            
-            <span class="label">Valores dos Pacotes</span>
-            <div class="price-input-row">
-                <span>Solo (1 Aluno):</span>
-                <input type="number" id="price-1" class="input-styled" onchange="saveSettings()">
-            </div>
-            <div class="price-input-row">
-                <span>Duo (2 Alunos):</span>
-                <input type="number" id="price-2" class="input-styled" onchange="saveSettings()">
-            </div>
-            <div class="price-input-row">
-                <span>Trio (3 Alunos):</span>
-                <input type="number" id="price-3" class="input-styled" onchange="saveSettings()">
-            </div>
-
-            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
-            
-            <span class="label">Sincronização Cloud</span>
+            <div class="price-input-row"><span>Solo:</span><input type="number" id="price-1" class="input-styled" onchange="saveSettings()"></div>
+            <div class="price-input-row"><span>Duo:</span><input type="number" id="price-2" class="input-styled" onchange="saveSettings()"></div>
+            <div class="price-input-row"><span>Trio:</span><input type="number" id="price-3" class="input-styled" onchange="saveSettings()"></div>
+            <hr style="border:0; border-top:1px solid var(--border-color); margin:20px 0;">
             <span id="supabase-status" class="supabase-status status-offline">● Desconectado</span>
-
-            <p style="font-size: 0.7rem; color: var(--text-muted); margin: 20px 0; text-align: center; font-style: italic;">
-                As credenciais da nuvem estão configuradas internamente.
-            </p>
-            <button class="copy-btn" style="width:100%" onclick="toggleSettings()">CONCLUÍDO</button>
+            <button class="copy-btn" style="width:100%; margin-top:20px" onclick="toggleSettings()">FECHAR</button>
         </div>
     </div>
 
     <script>
+        const SUPABASE_URL = "https://xmbydwfxkbpcjmojtyvk.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_9cmC_iJS5VL6j_W_CetgXw_k-pf5gii";
         const MONTH_NAMES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-        const THEMES = ['light', 'dark', 'violet'];
-        
-        const DEFAULT_SUPABASE_URL = "https://xmbydwfxkbpcjmojtyvk.supabase.co";
-        const DEFAULT_SUPABASE_KEY = "sb_publishable_9cmC_iJS5VL6j_W_CetgXw_k-pf5gii";
+        const THEMES = ['light', 'dark'];
 
         let prices = { 1: 75, 2: 95, 3: 115 };
-        let history = [];
         let currentSessions = [];
         let currentYear = new Date().getFullYear();
-        let currentThemeIndex = 0;
-        let currentTotal = 0;
+        let currentUser = null;
         let supabaseClient = null;
-        let currentAuthMode = 'login';
 
         window.onload = async () => {
-            initSupabase(DEFAULT_SUPABASE_URL, DEFAULT_SUPABASE_KEY);
-            
-            // Verificar Sessão
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             const { data: { session } } = await supabaseClient.auth.getSession();
+            
             if (session) {
+                currentUser = session.user;
                 showApp();
+                await loadStateFromCloud();
+                await renderHistory();
             } else {
                 showAuth();
             }
 
-            // Restaurar Configurações de Preços
-            const savedSettings = localStorage.getItem('heleninha_settings');
-            if (savedSettings) {
-                const settings = JSON.parse(savedSettings);
-                prices = settings.prices || prices;
-            }
-            document.getElementById('price-1').value = prices[1];
-            document.getElementById('price-2').value = prices[2];
-            document.getElementById('price-3').value = prices[3];
-
-            // Restaurar Histórico Local
-            const savedHistory = localStorage.getItem('heleninha_history');
-            if (savedHistory) {
-                history = JSON.parse(savedHistory);
-                renderHistory();
-            }
-
-            // Restaurar Tema
-            const savedTheme = localStorage.getItem('heleninha_theme') || 'light';
-            setTheme(savedTheme);
-            currentThemeIndex = THEMES.indexOf(savedTheme);
-
-            // Iniciar Seletores
-            const now = new Date();
-            const monthSelect = document.getElementById('month-select');
-            MONTH_NAMES.forEach((m, i) => {
-                const opt = document.createElement('option');
-                opt.value = i;
-                opt.text = m;
-                if(i === now.getMonth()) opt.selected = true;
-                monthSelect.appendChild(opt);
-            });
-            
-            updateYearDisplay();
-            
-            const savedConfig = localStorage.getItem('heleninha_config_v5');
-            if(savedConfig) {
-                const data = JSON.parse(savedConfig);
-                document.getElementById('day-select').value = data.day;
-                currentYear = data.year || currentYear;
-                updateYearDisplay();
-            }
-
-            generateDates();
+            initSelectors();
+            setTheme(localStorage.getItem('heleninha_theme') || 'light');
             document.getElementById('loading-screen').style.display = 'none';
         };
 
-        // --- FUNÇÕES DE AUTH ---
+        function initSelectors() {
+            const monthSelect = document.getElementById('month-select');
+            MONTH_NAMES.forEach((m, i) => {
+                const opt = document.createElement('option');
+                opt.value = i; opt.text = m;
+                if(i === new Date().getMonth()) opt.selected = true;
+                monthSelect.appendChild(opt);
+            });
+            updateYearDisplay();
+            generateDates();
+        }
 
+        // --- AUTH ---
         function setAuthMode(mode) {
-            currentAuthMode = mode;
-            const regFields = document.getElementById('register-only-fields');
-            const submitBtn = document.getElementById('auth-submit-btn');
-            const btnLogin = document.getElementById('btn-login-mode');
-            const btnReg = document.getElementById('btn-register-mode');
-
-            if (mode === 'login') {
-                regFields.style.display = 'none';
-                submitBtn.innerText = 'Entrar';
-                btnLogin.classList.add('active');
-                btnReg.classList.remove('active');
-            } else {
-                regFields.style.display = 'block';
-                submitBtn.innerText = 'Cadastrar';
-                btnLogin.classList.remove('active');
-                btnReg.classList.add('active');
-            }
+            document.getElementById('register-only-fields').style.display = mode === 'login' ? 'none' : 'block';
+            document.getElementById('auth-submit-btn').innerText = mode === 'login' ? 'Entrar' : 'Cadastrar';
+            document.getElementById('btn-login-mode').className = mode === 'login' ? 'active' : '';
+            document.getElementById('btn-register-mode').className = mode === 'register' ? 'active' : '';
         }
 
         async function handleAuthSubmit() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
-            const info = document.getElementById('auth-info');
-            
-            if (!email || !password) {
-                info.innerText = "Preencha todos os campos.";
-                return;
-            }
-
+            if (!email || !password) return;
             document.getElementById('loading-screen').style.display = 'flex';
 
-            if (currentAuthMode === 'login') {
-                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) {
-                    info.innerText = "Erro: " + error.message;
-                    document.getElementById('loading-screen').style.display = 'none';
-                } else {
-                    location.reload();
-                }
-            } else {
-                const confirm = document.getElementById('auth-confirm-password').value;
-                if (password !== confirm) {
-                    info.innerText = "As senhas não coincidem.";
-                    document.getElementById('loading-screen').style.display = 'none';
-                    return;
-                }
+            const isRegister = document.getElementById('btn-register-mode').classList.contains('active');
+            const { data, error } = isRegister 
+                ? await supabaseClient.auth.signUp({ email, password }) 
+                : await supabaseClient.auth.signInWithPassword({ email, password });
 
-                const { error } = await supabaseClient.auth.signUp({ email, password });
-                if (error) {
-                    info.innerText = "Erro: " + error.message;
-                } else {
-                    info.innerText = "Conta criada! Verifique o seu e-mail para confirmar.";
-                }
+            if (error) {
+                document.getElementById('auth-info').innerText = error.message;
                 document.getElementById('loading-screen').style.display = 'none';
+            } else {
+                if(isRegister) document.getElementById('auth-info').innerText = "Verifique o seu e-mail.";
+                else location.reload();
             }
         }
 
-        async function handleLogout() {
-            if (confirm("Deseja encerrar a sessão?")) {
-                await supabaseClient.auth.signOut();
-                location.reload();
+        async function handleLogout() { if(confirm("Sair?")) { await supabaseClient.auth.signOut(); location.reload(); } }
+        function showAuth() { document.getElementById('auth-screen').style.display = 'flex'; document.getElementById('app-screen').style.display = 'none'; }
+        function showApp() { document.getElementById('auth-screen').style.display = 'none'; document.getElementById('app-screen').style.display = 'block'; }
+
+        // --- CLOUD SYNC ---
+        async function saveStateToCloud() {
+            if (!currentUser) return;
+            const state = { prices, currentYear, month: document.getElementById('month-select').value, day: document.getElementById('day-select').value, sessions: currentSessions.map(s => s.students) };
+            await supabaseClient.from('trainer_state').upsert({ user_id: currentUser.id, data_json: state, updated_at: new Date().toISOString() });
+        }
+
+        async function loadStateFromCloud() {
+            const { data } = await supabaseClient.from('trainer_state').select('data_json').eq('user_id', currentUser.id).single();
+            if (data?.data_json) {
+                const s = data.data_json;
+                prices = s.prices || prices;
+                currentYear = s.currentYear || currentYear;
+                document.getElementById('month-select').value = s.month;
+                document.getElementById('day-select').value = s.day;
+                updateYearDisplay();
+                generateDates();
+                if(s.sessions) currentSessions.forEach((sess, i) => sess.students = s.sessions[i] || 0);
+                document.getElementById('price-1').value = prices[1];
+                document.getElementById('price-2').value = prices[2];
+                document.getElementById('price-3').value = prices[3];
+                renderSelectors(); updateResult();
             }
         }
 
-        function showAuth() {
-            document.getElementById('auth-screen').style.display = 'flex';
-            document.getElementById('app-screen').style.display = 'none';
-        }
-
-        function showApp() {
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('app-screen').style.display = 'block';
-        }
-
-        // --- LÓGICA DO APP (PRESERVADA) ---
-
-        function initSupabase(url, key) {
-            try {
-                supabaseClient = supabase.createClient(url, key);
-                document.getElementById('supabase-status').innerText = "● Sincronização Ativa";
-                document.getElementById('supabase-status').className = "supabase-status status-online";
-            } catch (e) {
-                console.error("Supabase Init Error", e);
-                document.getElementById('supabase-status').innerText = "● Erro de Ligação";
-                document.getElementById('supabase-status').className = "supabase-status status-offline";
-            }
-        }
-
-        function toggleSettings() {
-            const modal = document.getElementById('settings-modal');
-            modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
-        }
-
-        function saveSettings() {
-            prices[1] = parseFloat(document.getElementById('price-1').value) || 0;
-            prices[2] = parseFloat(document.getElementById('price-2').value) || 0;
-            prices[3] = parseFloat(document.getElementById('price-3').value) || 0;
-            localStorage.setItem('heleninha_settings', JSON.stringify({ prices }));
-            updateResult();
-        }
-
-        function cycleTheme() {
-            currentThemeIndex = (currentThemeIndex + 1) % THEMES.length;
-            setTheme(THEMES[currentThemeIndex]);
-        }
-
-        function setTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            localStorage.setItem('heleninha_theme', theme);
-            const icons = { 'light': '☀️', 'dark': '🌙', 'violet': '🔮' };
-            document.getElementById('theme-icon').innerText = icons[theme];
-        }
-
-        function changeYear(delta) {
-            currentYear += delta;
-            updateYearDisplay();
-            generateDates();
-        }
-
-        function updateYearDisplay() {
-            document.getElementById('year-display').innerText = currentYear;
-        }
+        // --- CORE LOGIC ---
+        function handleUIChange() { generateDates(); saveStateToCloud(); }
+        function changeYear(n) { currentYear += n; updateYearDisplay(); handleUIChange(); }
+        function updateYearDisplay() { document.getElementById('year-display').innerText = currentYear; }
 
         function generateDates() {
-            const month = parseInt(document.getElementById('month-select').value);
-            const targetDay = parseInt(document.getElementById('day-select').value);
+            const m = parseInt(document.getElementById('month-select').value);
+            const dWeek = parseInt(document.getElementById('day-select').value);
             currentSessions = [];
-            let date = new Date(currentYear, month, 1);
-            while (date.getMonth() === month) {
-                if (date.getDay() === targetDay) {
-                    const d = String(date.getDate()).padStart(2, '0');
-                    const m = String(date.getMonth() + 1).padStart(2, '0');
-                    currentSessions.push({ date: `${d}/${m}`, students: 3 });
+            let date = new Date(currentYear, m, 1);
+            while (date.getMonth() === m) {
+                if (date.getDay() === dWeek) {
+                    currentSessions.push({ date: `${String(date.getDate()).padStart(2, '0')}/${String(m+1).padStart(2, '0')}`, students: 3 });
                 }
                 date.setDate(date.getDate() + 1);
             }
-            renderSelectors();
-            updateResult();
-            localStorage.setItem('heleninha_config_v5', JSON.stringify({ day: targetDay, year: currentYear }));
+            renderSelectors(); updateResult();
         }
 
         function renderSelectors() {
@@ -576,128 +434,66 @@
             currentSessions.forEach((s, i) => {
                 const div = document.createElement('div');
                 div.className = 'session-box';
-                div.innerHTML = `
-                    <span class="date-label">${s.date}</span>
+                div.innerHTML = `<span class="date-label">${s.date}</span>
                     <select class="session-select bg-${s.students}" onchange="updateAttendance(${i}, this.value)">
-                        <option value="0" ${s.students === 0 ? 'selected' : ''}>0</option>
-                        <option value="1" ${s.students === 1 ? 'selected' : ''}>1</option>
-                        <option value="2" ${s.students === 2 ? 'selected' : ''}>2</option>
-                        <option value="3" ${s.students === 3 ? 'selected' : ''}>3</option>
-                    </select>
-                `;
+                        <option value="0" ${s.students==0?'selected':''}>0</option>
+                        <option value="1" ${s.students==1?'selected':''}>1</option>
+                        <option value="2" ${s.students==2?'selected':''}>2</option>
+                        <option value="3" ${s.students==3?'selected':''}>3</option>
+                    </select>`;
                 container.appendChild(div);
             });
         }
 
-        function updateAttendance(index, value) {
-            currentSessions[index].students = parseInt(value);
-            renderSelectors();
-            updateResult();
-        }
+        function updateAttendance(i, v) { currentSessions[i].students = parseInt(v); renderSelectors(); updateResult(); saveStateToCloud(); }
 
         function updateResult() {
-            const monthIndex = document.getElementById('month-select').value;
-            const monthName = MONTH_NAMES[monthIndex];
+            const mName = MONTH_NAMES[document.getElementById('month-select').value];
             let total = 0;
-            let lines = `🗓️ *${monthName.toUpperCase()} / ${currentYear}*\n\n`;
+            let text = `🗓️ *${mName.toUpperCase()} / ${currentYear}*\n\n`;
             currentSessions.forEach(s => {
-                if(s.students > 0) {
-                    const price = prices[s.students];
-                    total += price;
-                    lines += `${s.date} - ${s.students} aluno(s) (R$ ${price})\n`;
-                } else {
-                    lines += `${s.date} - Sem aula / Falta\n`;
-                }
+                const p = prices[s.students] || 0;
+                total += p;
+                text += s.students > 0 ? `${s.date} - ${s.students} aluno(s) (R$ ${p})\n` : `${s.date} - Sem aula / Falta\n`;
             });
-            currentTotal = total;
-            lines += `\n💰 *TOTAL: R$ ${total.toFixed(2).replace('.', ',')}*`;
-            document.getElementById('result-text').innerText = lines;
+            text += `\n💰 *TOTAL: R$ ${total.toFixed(2).replace('.', ',')}*`;
+            document.getElementById('result-text').innerText = text;
+            return { total, text, title: `${mName.toUpperCase()} / ${currentYear}` };
         }
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.innerText = msg;
-            toast.style.opacity = '1';
-            setTimeout(() => toast.style.opacity = '0', 3500);
-        }
-
+        // --- CLOUD HISTORY ---
         async function saveToHistory() {
-            const monthName = MONTH_NAMES[document.getElementById('month-select').value];
-            const now = new Date();
-            const timestampStr = `${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}`;
-            const entry = { title: `${monthName.toUpperCase()} / ${currentYear}`, total: currentTotal, time: timestampStr, id: Date.now() };
-
-            history.unshift(entry);
-            if(history.length > 15) history.pop();
-            localStorage.setItem('heleninha_history', JSON.stringify(history));
-            renderHistory();
-
-            if (supabaseClient) {
-                const { data: { user } } = await supabaseClient.auth.getUser();
-                try {
-                    const { error } = await supabaseClient
-                        .from('trainer_history') 
-                        .insert([{ 
-                            title: entry.title, 
-                            total: entry.total, 
-                            timestamp: now.toISOString(),
-                            details: document.getElementById('result-text').innerText
-                        }]);
-                    if (error) showToast(`Salvo local. Erro nuvem: ${error.message}`);
-                    else showToast("✓ Sincronizado na nuvem!");
-                } catch (e) {
-                    showToast("Erro crítico ao salvar na nuvem.");
-                }
-            } else {
-                showToast("✓ Salvo localmente!");
-            }
+            if(!currentUser) return;
+            const res = updateResult();
+            const { error } = await supabaseClient.from('trainer_history').insert([{ user_id: currentUser.id, title: res.title, total: res.total, timestamp: new Date().toISOString(), details: res.text }]);
+            if (error) showToast("Erro a salvar!");
+            else { showToast("✓ Salvo no Supabase!"); renderHistory(); }
         }
 
-        function renderHistory() {
+        async function renderHistory() {
+            if(!currentUser) return;
+            const { data } = await supabaseClient.from('trainer_history').select('*').eq('user_id', currentUser.id).order('timestamp', { ascending: false }).limit(10);
             const list = document.getElementById('history-list');
-            list.innerHTML = '';
-            if(history.length === 0) {
-                list.innerHTML = '<p style="text-align:center; font-size:0.8rem; color:var(--text-muted); font-style:italic;">Nenhum registro salvo.</p>';
-                return;
-            }
-            history.forEach(item => {
+            list.innerHTML = data?.length ? '' : '<p style="text-align:center;font-size:0.8rem;color:var(--text-muted)">Sem histórico.</p>';
+            data?.forEach(item => {
+                const d = new Date(item.timestamp);
                 const div = document.createElement('div');
                 div.className = 'history-item';
-                div.innerHTML = `
-                    <div class="history-header">
-                        <span>${item.title}</span>
-                        <span class="history-total">R$ ${item.total.toFixed(2).replace('.', ',')}</span>
-                    </div>
-                    <div class="history-date">Salvo em ${item.time}</div>
-                `;
+                div.innerHTML = `<div class="history-header"><span>${item.title}</span><span class="history-total">R$ ${item.total.toFixed(2).replace('.',',')}</span></div>
+                                 <div class="history-date">Salvo em ${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>`;
                 list.appendChild(div);
             });
         }
 
-        function clearHistory() {
-            if(confirm("Deseja apagar todo o histórico local?")) {
-                history = [];
-                localStorage.removeItem('heleninha_history');
-                renderHistory();
-                showToast("Histórico limpo");
-            }
-        }
+        async function clearHistory() { if(confirm("Apagar histórico da nuvem?")) { await supabaseClient.from('trainer_history').delete().eq('user_id', currentUser.id); renderHistory(); } }
 
-        function copyToClipboard() {
-            const text = document.getElementById('result-text').innerText;
-            const el = document.createElement('textarea');
-            el.value = text;
-            document.body.appendChild(el);
-            el.select();
-            try {
-                document.execCommand('copy');
-                showToast("✓ Copiado para o WhatsApp!");
-            } catch (err) {
-                console.error('Erro ao copiar texto');
-            }
-            document.body.removeChild(el);
-        }
+        // --- UTILS ---
+        function toggleSettings() { const m = document.getElementById('settings-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
+        function saveSettings() { prices[1] = parseInt(document.getElementById('price-1').value); prices[2] = parseInt(document.getElementById('price-2').value); prices[3] = parseInt(document.getElementById('price-3').value); updateResult(); saveStateToCloud(); }
+        function setTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('heleninha_theme', t); document.getElementById('theme-icon').innerText = t === 'light' ? '☀️' : '🌙'; }
+        function cycleTheme() { setTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'); }
+        function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.opacity = '1'; setTimeout(() => t.style.opacity = '0', 3000); }
+        function copyToClipboard() { const text = document.getElementById('result-text').innerText; const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); showToast("✓ Copiado!"); }
     </script>
 </body>
 </html>
-
